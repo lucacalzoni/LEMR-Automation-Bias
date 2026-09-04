@@ -1,0 +1,2 @@
+#visitID,cuttime1,cuttime2,t1,t2,condition,show_highlights,highlights_only,incorrect_highlights
+demo-intro,0.0,0.0,0,0,ARF,0,0,0

@@ -23,18 +23,21 @@ staticfiles/
 local_settings.py
 .env
 
-# --- Case data (never commit patient data, even synthetic during dev) ---
-# Bring your own via docs/CASE_FORMAT.md. Exception: resources/demo_study/
-# is the small documented demo set and IS tracked.
-models/
-!resources/demo_study/
-EvaluationStudy/models/
+# --- Case data (never commit patient data, real or study) ---
+# We track the starter directory structure (via .gitkeep files) and the
+# demo participant registry, but the actual .p case files, per-participant
+# JSON results, and CSV exports never go in git.
+EvaluationStudy/models/evaluation_study/data/*
+!EvaluationStudy/models/evaluation_study/data/.gitkeep
+!EvaluationStudy/models/evaluation_study/data/demo-*/
+EvaluationStudy/models/evaluation_study/results/*
+!EvaluationStudy/models/evaluation_study/results/.gitkeep
+EvaluationStudy/models/evaluation_study/tests/*
+!EvaluationStudy/models/evaluation_study/tests/.gitkeep
 
-# --- Results / exports (contain participant data) ---
-results/
+# --- Results / exports ---
 *.csv
 *.xlsx
-EvaluationStudy/results/
 
 # --- IDE ---
 .idea/

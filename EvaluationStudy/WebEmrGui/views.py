@@ -9,7 +9,7 @@ from django import forms
 # Windows) and Py3 (any modern install).
 from .loaddata import update_cases  # only symbol actually used at request time; loaddata's other
 # functions are King-era MySQL data-ingest helpers (numpy/MySQL deps not needed at runtime)
-from .utils import load_med_maps, load_med_full_map, load_access_code, load_all_access_codes
+from .utils import *  # preserves the transitive wildcard scope views.py had before the targeted-import cleanup; utils.py holds session-mgmt helpers (reset_directories, load_med_maps, etc.) that views uses throughout
 from . import results_io
 from . import trust_instrument
 import operator
@@ -189,8 +189,21 @@ show_probabilities = False  # set show_probabilities to True when print out of p
 use_logistic_regression = True  # is the boolean selector between whether logistic regression or lasso...
 # regression is used. (Models must be retrained when value is changed)
 one_less_day = False  # when true, the most recent 24 hours of patient data is removed from the display
-if os.path.isdir("../../models/"):
-    local_dir = os.getcwd() + "/../../models/"
+
+# Case-data root. The runtime reads pickled .p case files, per-participant
+# state, and results exports from under this directory. Resolution order:
+#   1. $LEMR_DATA_DIR env var (recommended for deployments)
+#   2. ../../models/ if it exists relative to the manage.py cwd (King's convention)
+#   3. Absolute fallback ./models/ under the project root so a fresh clone
+#      does not crash on first request. If the tree is empty, individual
+#      views that need case data will fail with a more informative "file
+#      not found" error rather than a bare NameError at module scope.
+local_dir = (
+    os.environ.get('LEMR_DATA_DIR')
+    or (os.getcwd() + '/../../models/' if os.path.isdir('../../models/') else None)
+    or os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'models')
+)
+
 use_patient_order = False  # When true the next and previous buttons use the patient_order ordering.
 
 
