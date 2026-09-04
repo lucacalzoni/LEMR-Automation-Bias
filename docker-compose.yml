@@ -10,6 +10,9 @@ services:
       # DJANGO_ALLOWED_HOSTS: ""
       PYTHONUNBUFFERED: "1"
     volumes:
-      # Mount the demo/user case data into the location the code expects.
-      # See docs/CASE_FORMAT.md.
-      - ./resources/demo_study:/app/models/evaluation_study/data:ro
+      # Live code mount — edits to Python/templates/CSS/JS on the host are
+      # picked up on the next request (Django auto-reloads .py files; static
+      # files and templates are re-read per request). No `--build` needed
+      # for iteration. Comment this out if you want the immutable
+      # image-baked behaviour for a reproducibility snapshot.
+      - ./EvaluationStudy:/app/EvaluationStudy
