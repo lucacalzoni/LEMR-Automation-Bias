@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Coordinator access — LEMR</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #F4F8FC; --surface: #FFFFFF; --border: #DCE6F0; --text: #1F2937;
+            --text-muted: #5C6B7A; --pitt-blue: #003594; --pitt-blue-50: #E8EFFB;
+            --proto-blue: #C1E1EE; --error: #B42318;
+        }
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            -webkit-font-smoothing: antialiased; }
+        .shell { max-width: 460px; margin: 0 auto; padding: 96px 32px 80px; }
+        .header { text-align: center; margin-bottom: 36px; }
+        .header img { height: 48px; display: block; margin: 0 auto 20px; }
+        .header h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 8px; }
+        .header p { font-size: 14px; color: var(--text-muted); margin: 0; }
+        .panel {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; padding: 28px;
+            box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+        }
+        label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 8px; }
+        input[type="password"] {
+            width: 100%; font-family: inherit; font-size: 15px;
+            padding: 12px 14px; border: 1px solid var(--border);
+            border-radius: 10px; background: #FAFCFE; transition: all 0.15s ease;
+        }
+        input[type="password"]:focus {
+            outline: none; border-color: var(--pitt-blue); background: #FFFFFF;
+            box-shadow: 0 0 0 3px var(--pitt-blue-50);
+        }
+        .err { color: var(--error); font-size: 13px; margin: 12px 0 0; }
+        button {
+            width: 100%; margin-top: 18px; background: var(--pitt-blue); color: #FFFFFF;
+            font-family: inherit; font-size: 14px; font-weight: 500;
+            border: none; padding: 12px 24px; border-radius: 10px; cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        button:hover { background: #002A75; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,53,148,0.18); }
+        .footer { margin-top: 56px; text-align: center; font-size: 12px; color: #95A4B5; }
+    </style>
+</head>
+<body>
+<div class="shell">
+    <div class="header">
+        <img src="/static/logos/Pitt.png" alt="University of Pittsburgh">
+        <h1>Coordinator access</h1>
+        <p>Enter the study coordinator password to view the participant results.</p>
+    </div>
+    <form class="panel" method="GET" action="/WebEmrGui/admin_report/">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" autofocus>
+        {% if error %}<p class="err">That password didn't match. Try again.</p>{% endif %}
+        <button type="submit">Unlock report</button>
+    </form>
+    <div class="footer">Department of Biomedical Informatics &nbsp;·&nbsp; University of Pittsburgh</div>
+</div>
+</body>
+</html>

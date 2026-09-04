@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>About you — LEMR Study</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #F4F8FC; --surface: #FFFFFF; --border: #DCE6F0; --border-soft: #ECF1F7;
+            --text: #1F2937; --text-muted: #5C6B7A;
+            --pitt-blue: #003594; --pitt-blue-50: #E8EFFB;
+            --proto-blue: #C1E1EE;
+        }
+        * { box-sizing: border-box; }
+        html, body {
+            margin: 0; padding: 0; background: var(--bg); color: var(--text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .shell { max-width: 760px; margin: 0 auto; padding: 56px 32px 80px; }
+        .header { text-align: center; margin-bottom: 32px; }
+        .header img { height: 56px; width: auto; display: block; margin: 0 auto 24px; }
+        .header h1 { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 10px; line-height: 1.25; }
+        .header p { font-size: 14px; line-height: 1.55; color: var(--text-muted); margin: 0 auto; max-width: 560px; }
+        .progress {
+            margin: 24px auto 28px; max-width: 560px;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .progress__bar { flex: 1; height: 6px; background: var(--border-soft); border-radius: 999px; overflow: hidden; }
+        .progress__fill { height: 100%; background: var(--pitt-blue); width: 0; transition: width 0.25s ease; }
+        .progress__count { font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; min-width: 70px; text-align: right; }
+        .panel {
+            background: var(--surface); border: 1px solid var(--border);
+            border-left: 3px solid var(--proto-blue);
+            border-radius: 12px; padding: 32px 32px 28px;
+            box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+        }
+        .question { font-size: 16px; font-weight: 500; margin: 0 0 22px; line-height: 1.55; }
+
+        /* Numeric input */
+        input.numeric {
+            width: 160px;
+            font-family: inherit; font-size: 16px;
+            padding: 11px 14px; border: 1px solid var(--border);
+            border-radius: 10px; background: var(--surface); color: var(--text);
+            transition: all 0.15s ease;
+        }
+        input.numeric:focus {
+            outline: none; border-color: var(--pitt-blue);
+            box-shadow: 0 0 0 3px rgba(0,53,148,0.12);
+        }
+        .input-unit { color: var(--text-muted); font-size: 14px; margin-left: 10px; }
+
+        /* Radio scale (gender) */
+        .scale { display: grid; gap: 8px; margin: 0 0 8px; }
+        .scale label {
+            display: flex; align-items: center; gap: 12px;
+            padding: 11px 16px; border: 1px solid var(--border);
+            border-radius: 10px; cursor: pointer;
+            transition: all 0.15s ease; font-size: 14px; background: var(--surface);
+        }
+        .scale label:hover { border-color: var(--pitt-blue); background: var(--pitt-blue-50); }
+        .scale label.is-selected { border-color: var(--pitt-blue); background: var(--pitt-blue-50); }
+        .scale input[type="radio"] { margin: 0; accent-color: var(--pitt-blue); width: 18px; height: 18px; flex-shrink: 0; }
+        /* Inline "self-described" text input */
+        .scale label .self-text {
+            font-family: inherit; font-size: 14px;
+            padding: 6px 10px; border: 1px solid var(--border); border-radius: 8px;
+            background: var(--surface); color: var(--text); width: 60%;
+        }
+        .scale label .self-text:focus { outline: none; border-color: var(--pitt-blue); }
+
+        .actions { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-top: 22px; }
+        button.back, button.next {
+            font-family: inherit; font-size: 14px; font-weight: 500;
+            border: 1px solid var(--border); padding: 11px 22px; border-radius: 10px;
+            cursor: pointer; transition: all 0.15s ease; background: var(--surface); color: var(--text);
+        }
+        button.back:disabled { opacity: 0.45; cursor: not-allowed; }
+        button.next { background: var(--pitt-blue); color: #FFFFFF; border-color: var(--pitt-blue); }
+        button.next:hover:not([disabled]) { background: #002A75; box-shadow: 0 4px 16px rgba(0,53,148,0.18); }
+        button.next[disabled] { background: #BCC4CF; border-color: #BCC4CF; cursor: not-allowed; }
+        .footer { margin-top: 48px; text-align: center; font-size: 12px; color: #95A4B5; }
+        .saving { color: var(--text-muted); font-size: 12px; margin-left: 8px; }
+    </style>
+</head>
+<body>
+<div class="shell">
+    <div class="header">
+        <img src="/static/logos/Pitt.png" alt="University of Pittsburgh">
+        <h1>About you, {{ user_id }}</h1>
+        <p>Before we begin, please tell us a little about yourself. Your responses are confidential and used only to characterise the study sample.</p>
+    </div>
+
+    <div class="progress">
+        <div class="progress__bar"><div class="progress__fill" id="progress_fill"></div></div>
+        <div class="progress__count"><span id="q_idx">1</span> of <span id="q_total"></span></div>
+    </div>
+
+    <div class="panel">
+        <p class="question" id="q_text"></p>
+        <div id="q_body"></div>
+        <div class="actions">
+            <button class="back" type="button" id="back_btn" disabled>Back</button>
+            <div>
+                <span class="saving" id="saving_indicator"></span>
+                <button class="next" type="button" id="next_btn" disabled>Next</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">Department of Biomedical Informatics &nbsp;·&nbsp; University of Pittsburgh</div>
+</div>
+
+<script>
+    // ----------------------------------------------------------------
+    // Demographics battery. Mirrors the trust_pre.html flow:
+    //   - one question per screen
+    //   - Continue button gated on input present + valid
+    //   - per-question POST so a participant resuming after a break
+    //     picks up at the first un-answered question.
+    // ----------------------------------------------------------------
+    var QUESTIONS = {{ questions_json|safe }};   // [{id, kind, text, options?, min?, max?, unit?}, ...]
+    var ANSWERS_INITIAL = {{ answers_json|safe }};
+    var USER_ID = '{{ user_id }}';
+    var NEXT_PATH = '{{ next_path }}';
+
+    var answers = {};
+    for (var k in ANSWERS_INITIAL) {
+        if (ANSWERS_INITIAL.hasOwnProperty(k)) answers[k] = ANSWERS_INITIAL[k];
+    }
+    var current_idx = 0;
+    var all_done = true;
+    for (var i = 0; i < QUESTIONS.length; i++) {
+        if (answers[QUESTIONS[i].id] === undefined || answers[QUESTIONS[i].id] === null || answers[QUESTIONS[i].id] === '') {
+            current_idx = i; all_done = false; break;
+        }
+    }
+    if (all_done) current_idx = QUESTIONS.length - 1;
+
+    document.getElementById('q_total').textContent = String(QUESTIONS.length);
+
+    function getCsrfToken() {
+        var name = 'csrftoken=';
+        var parts = document.cookie.split(';');
+        for (var i = 0; i < parts.length; i++) {
+            var c = parts[i].replace(/^\s+/, '');
+            if (c.indexOf(name) === 0) return c.substring(name.length);
+        }
+        return '';
+    }
+
+    function setNextEnabled(enabled, isLast) {
+        var btn = document.getElementById('next_btn');
+        btn.disabled = !enabled;
+        btn.textContent = isLast ? 'Continue' : 'Next';
+    }
+
+    function isAnswerComplete(q, v) {
+        if (q.kind === 'number') {
+            if (v === undefined || v === null || v === '') return false;
+            var n = Number(v);
+            if (!isFinite(n)) return false;
+            if (q.min !== undefined && n < q.min) return false;
+            if (q.max !== undefined && n > q.max) return false;
+            return true;
+        }
+        if (q.kind === 'choice') {
+            // Picked any radio; if the picked option requires free text
+            // (kind = 'self_describe'), the text must be non-empty.
+            if (typeof v !== 'string' || v.length === 0) return false;
+            // Detect the "self-describe" sentinel in stored value
+            // form: stored value for that option is "self:<typed text>".
+            // We accept any non-empty stored value here; the live UI
+            // validator handles the empty-text edge case.
+            return true;
+        }
+        return false;
+    }
+
+    function renderQuestion() {
+        var q = QUESTIONS[current_idx];
+        var isLast = (current_idx === QUESTIONS.length - 1);
+        document.getElementById('q_idx').textContent = String(current_idx + 1);
+        document.getElementById('q_text').textContent = q.text;
+        var pct = ((current_idx) / Math.max(1, QUESTIONS.length - 1)) * 100;
+        document.getElementById('progress_fill').style.width = pct.toFixed(0) + '%';
+
+        var body = document.getElementById('q_body');
+        body.innerHTML = '';
+
+        if (q.kind === 'number') {
+            var input = document.createElement('input');
+            input.type = 'number';
+            input.className = 'numeric';
+            input.id = 'demo_num';
+            if (q.min !== undefined) input.min = String(q.min);
+            if (q.max !== undefined) input.max = String(q.max);
+            input.placeholder = (q.placeholder || '');
+            input.step = '1';
+            if (answers[q.id] !== undefined && answers[q.id] !== null) input.value = String(answers[q.id]);
+            input.addEventListener('input', function () {
+                var n = input.value;
+                answers[q.id] = n;
+                setNextEnabled(isAnswerComplete(q, n), isLast);
+            });
+            body.appendChild(input);
+            if (q.unit) {
+                var unit = document.createElement('span');
+                unit.className = 'input-unit';
+                unit.textContent = q.unit;
+                body.appendChild(unit);
+            }
+            setTimeout(function () { input.focus(); }, 0);
+            setNextEnabled(isAnswerComplete(q, answers[q.id]), isLast);
+        } else if (q.kind === 'choice') {
+            var scale = document.createElement('div');
+            scale.className = 'scale';
+            // Track whether the "self_describe" option needs free-text
+            var selfInput = null;
+            var selfOptionValue = null;
+            for (var i = 0; i < q.options.length; i++) {
+                var opt = q.options[i];
+                var label = document.createElement('label');
+                var input = document.createElement('input');
+                input.type = 'radio';
+                input.name = 'demo_' + q.id;
+                input.value = opt.value;
+                // Pre-select if matching
+                var stored = answers[q.id];
+                var storedMatchesThis = false;
+                if (opt.kind === 'self_describe') {
+                    selfOptionValue = opt.value;
+                    storedMatchesThis = (typeof stored === 'string' && stored.indexOf('self:') === 0);
+                } else {
+                    storedMatchesThis = (stored === opt.value);
+                }
+                if (storedMatchesThis) {
+                    input.checked = true;
+                    label.classList.add('is-selected');
+                }
+                label.appendChild(input);
+                var txt = document.createElement('span');
+                txt.textContent = opt.label;
+                label.appendChild(txt);
+                if (opt.kind === 'self_describe') {
+                    selfInput = document.createElement('input');
+                    selfInput.type = 'text';
+                    selfInput.className = 'self-text';
+                    selfInput.placeholder = opt.placeholder || 'please specify';
+                    if (storedMatchesThis) selfInput.value = stored.substring(5);
+                    label.appendChild(selfInput);
+                }
+                (function (lbl, inp, isSelf) {
+                    inp.addEventListener('change', function () {
+                        var labels = scale.querySelectorAll('label');
+                        for (var j = 0; j < labels.length; j++) labels[j].classList.remove('is-selected');
+                        lbl.classList.add('is-selected');
+                        if (isSelf) {
+                            var t = (selfInput.value || '').replace(/\s+/g, '');
+                            answers[q.id] = 'self:' + (selfInput.value || '');
+                            setNextEnabled(t.length > 0, isLast);
+                            setTimeout(function () { selfInput.focus(); }, 0);
+                        } else {
+                            answers[q.id] = inp.value;
+                            setNextEnabled(true, isLast);
+                        }
+                    });
+                })(label, input, opt.kind === 'self_describe');
+                scale.appendChild(label);
+            }
+            if (selfInput) {
+                selfInput.addEventListener('input', function () {
+                    // Auto-pick the self-describe radio when typing starts.
+                    var radios = scale.querySelectorAll('input[type=radio]');
+                    for (var i = 0; i < radios.length; i++) {
+                        if (radios[i].value === selfOptionValue) {
+                            radios[i].checked = true;
+                            var lbls = scale.querySelectorAll('label');
+                            for (var j = 0; j < lbls.length; j++) lbls[j].classList.remove('is-selected');
+                            radios[i].parentNode.classList.add('is-selected');
+                        }
+                    }
+                    answers[q.id] = 'self:' + selfInput.value;
+                    setNextEnabled(selfInput.value.replace(/\s+/g, '').length > 0, isLast);
+                });
+            }
+            body.appendChild(scale);
+            // Initial state
+            var ok = false;
+            if (typeof answers[q.id] === 'string' && answers[q.id].length > 0) {
+                if (answers[q.id].indexOf('self:') === 0) {
+                    ok = answers[q.id].substring(5).replace(/\s+/g, '').length > 0;
+                } else { ok = true; }
+            }
+            setNextEnabled(ok, isLast);
+        }
+
+        document.getElementById('back_btn').disabled = (current_idx === 0);
+    }
+
+    function saveCurrent(onDone) {
+        var q = QUESTIONS[current_idx];
+        var v = answers[q.id];
+        if (v === undefined || v === null || v === '') { if (onDone) onDone(true); return; }
+        document.getElementById('saving_indicator').textContent = 'Saving…';
+        var body =
+              'user_id='     + encodeURIComponent(USER_ID)
+            + '&question_id='+ encodeURIComponent(q.id)
+            + '&value='      + encodeURIComponent(String(v));
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/WebEmrGui/save_demographic/', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        var tok = getCsrfToken();
+        if (tok) xhr.setRequestHeader('X-CSRFToken', tok);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState !== 4) return;
+            var ok = xhr.status >= 200 && xhr.status < 300;
+            document.getElementById('saving_indicator').textContent = ok ? '' : 'Save failed';
+            if (!ok) console.error('[demographics save FAILED] status=' + xhr.status +
+                                    ' body=' + (xhr.responseText || '').substring(0, 240));
+            if (onDone) onDone(ok);
+        };
+        xhr.send(body);
+    }
+
+    document.getElementById('back_btn').addEventListener('click', function () {
+        if (current_idx === 0) return;
+        current_idx -= 1;
+        renderQuestion();
+    });
+    document.getElementById('next_btn').addEventListener('click', function () {
+        document.getElementById('next_btn').disabled = true;
+        saveCurrent(function (ok) {
+            if (!ok) {
+                document.getElementById('next_btn').disabled = false;
+                alert('Your response could not be saved. Please try again. If the problem persists, alert the study coordinator.');
+                return;
+            }
+            if (current_idx < QUESTIONS.length - 1) {
+                current_idx += 1;
+                renderQuestion();
+            } else {
+                window.location.href = NEXT_PATH;
+            }
+        });
+    });
+
+    renderQuestion();
+</script>
+</body>
+</html>

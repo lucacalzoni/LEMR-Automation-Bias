@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>LEMR Research Study</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ------------------------------------------------------------------
+           Palette  (Alternative B — visually continuous with the rest of
+           the prototype. Uses the existing prototype light-blue #C1E1EE
+           as the warm accent and Pitt Royal Blue for navigation accents.
+           Gold appears only on hover.)
+           ------------------------------------------------------------------ */
+        :root {
+            --bg:           #F4F8FC;   /* pale blue page background            */
+            --surface:      #FFFFFF;   /* card surface                         */
+            --border:       #DCE6F0;   /* blue-tinted hairline borders         */
+            --border-soft:  #ECF1F7;
+            --text:         #1F2937;
+            --text-muted:   #5C6B7A;
+            --text-faint:   #95A4B5;
+            --pitt-blue:    #003594;   /* Pitt Royal Blue                      */
+            --pitt-blue-50: #E8EFFB;
+            --pitt-gold:    #FFB81C;   /* Pitt Gold (used sparingly, hover)    */
+            --pitt-gold-50: #FFF6E3;
+            --proto-blue:   #C1E1EE;   /* the existing prototype light blue    */
+            --proto-blue-soft:#DDEEF5;
+            --shadow-sm:    0 1px 2px rgba(15, 23, 42, 0.04);
+            --shadow-md:    0 4px 16px rgba(15, 60, 130, 0.07);
+            --shadow-lg:    0 8px 28px rgba(15, 23, 42, 0.08);
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-feature-settings: "cv11", "ss01";
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        a { color: inherit; text-decoration: none; }
+
+        /* ------------------------------------------------------------------
+           Layout  (centered, narrow content column on large screens)
+           ------------------------------------------------------------------ */
+        .shell {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 48px 32px 80px;
+        }
+
+        /* ------------------------------------------------------------------
+           Header
+           ------------------------------------------------------------------ */
+        .header {
+            text-align: center;
+            margin-bottom: 56px;
+        }
+        .header__brand {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding-bottom: 28px;
+            margin-bottom: 36px;
+        }
+        .header__brand img {
+            height: 64px;
+            width: auto;
+            display: block;
+        }
+        .header__title {
+            font-size: 32px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: var(--text);
+            margin: 0 0 12px;
+            line-height: 1.2;
+        }
+        .header__subtitle {
+            font-size: 16px;
+            line-height: 1.55;
+            color: var(--text-muted);
+            margin: 0 auto;
+            max-width: 580px;
+            font-weight: 400;
+        }
+
+        /* ------------------------------------------------------------------
+           Intro panel
+           ------------------------------------------------------------------ */
+        .intro {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--proto-blue);
+            border-radius: 12px;
+            padding: 28px 32px;
+            margin-bottom: 56px;
+            box-shadow: var(--shadow-sm);
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 24px;
+        }
+        .intro__cell h4 {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+            color: var(--text-faint);
+            margin: 0 0 6px;
+        }
+        .intro__cell p {
+            font-size: 14px;
+            color: var(--text);
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        /* ------------------------------------------------------------------
+           Section
+           ------------------------------------------------------------------ */
+        .section + .section { margin-top: 56px; }
+        .section__header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .section__title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+            margin: 0;
+            letter-spacing: -0.01em;
+        }
+        .section__count {
+            font-size: 13px;
+            color: var(--text-faint);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ------------------------------------------------------------------
+           Card grid
+           ------------------------------------------------------------------ */
+        .grid {
+            display: grid;
+            gap: 14px;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        }
+        .grid--demo {
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .card::before {
+            content: "";
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 3px;
+            background: var(--pitt-gold);
+            opacity: 0;
+            transition: opacity 0.18s ease;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: var(--pitt-blue);
+            box-shadow: var(--shadow-md);
+        }
+        .card:hover::before { opacity: 1; }
+        .card:active {
+            transform: translateY(0);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card__icon {
+            flex-shrink: 0;
+            width: 38px;
+            height: 38px;
+            border-radius: 9px;
+            background: var(--proto-blue);
+            color: var(--pitt-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.18s ease;
+        }
+        .card:hover .card__icon {
+            background: var(--pitt-gold-50);
+            color: var(--pitt-blue);
+        }
+        .card__icon svg {
+            width: 18px;
+            height: 18px;
+            stroke-width: 2;
+        }
+        .card__body {
+            flex: 1;
+            min-width: 0;
+        }
+        .card__title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            margin: 0 0 2px;
+            letter-spacing: -0.005em;
+        }
+        .card__caption {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        /* Participant cards are denser */
+        .card--participant {
+            padding: 16px 18px;
+        }
+        .card--participant .card__icon {
+            width: 34px;
+            height: 34px;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0;
+        }
+        .card--participant .card__title {
+            font-size: 14px;
+            font-weight: 500;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Pilots: one card with two inner link chips. The card itself
+           is not a link; the chips inside are the actual clickables. */
+        .card--pilots {
+            cursor: default;
+        }
+        .card--pilots:hover {
+            transform: none;
+            border-color: var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+        .card--pilots:hover::before { opacity: 0; }
+        .card--pilots:hover .card__icon {
+            background: var(--proto-blue);
+            color: var(--pitt-blue);
+        }
+        .pilot-chips {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .pilot-chip {
+            display: inline-flex;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 4px 12px;
+            background: var(--pitt-blue-50);
+            color: var(--pitt-blue);
+            border-radius: 999px;
+            transition: all 0.15s ease;
+            text-decoration: none;
+        }
+        .pilot-chip:hover {
+            background: var(--pitt-blue);
+            color: #FFFFFF;
+        }
+
+        /* ------------------------------------------------------------------
+           Footer
+           ------------------------------------------------------------------ */
+        .footer {
+            margin-top: 80px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-soft);
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-faint);
+        }
+        .footer a:not(.coord-link) {
+            color: var(--pitt-blue);
+            font-weight: 500;
+        }
+        .footer a:not(.coord-link):hover {
+            color: var(--pitt-gold);
+        }
+        .footer .coord-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 7px 14px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--pitt-blue);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            text-decoration: none;
+            transition: all 0.15s ease;
+        }
+        .footer .coord-link:hover {
+            background: var(--pitt-blue);
+            color: #FFFFFF;
+            border-color: var(--pitt-blue);
+        }
+
+        /* ------------------------------------------------------------------
+           Responsive
+           ------------------------------------------------------------------ */
+        @media (max-width: 720px) {
+            .shell { padding: 32px 20px 64px; }
+            .header__title { font-size: 26px; }
+            .intro { grid-template-columns: 1fr; gap: 18px; padding: 22px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="shell">
+
+    <!-- ============================================================
+         Header
+         ============================================================ -->
+    <header class="header">
+        <div class="header__brand">
+            <img src="/static/logos/Pitt.png" alt="University of Pittsburgh">
+        </div>
+        <h1 class="header__title">Learning EMR Evaluation Study</h1>
+        <p class="header__subtitle">
+            A research study on clinician interaction with an AI-assisted electronic medical record.
+            Select your participant code below to begin your session.
+        </p>
+    </header>
+
+    <!-- ============================================================
+         Intro panel
+         ============================================================ -->
+    <div class="intro">
+        <div class="intro__cell">
+            <h4>What you'll do</h4>
+            <p>Review 6 patient cases and present each as you would on morning rounds.</p>
+        </div>
+        <div class="intro__cell">
+            <h4>Estimated time</h4>
+            <p>Approximately 60 minutes total, with optional breaks between cases.</p>
+        </div>
+        <div class="intro__cell">
+            <h4>Before you start</h4>
+            <p>Try the demos below to get familiar with the layout. Use your browser's controls to zoom in.</p>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         Section: Demo & Pilot
+         ============================================================ -->
+    <section class="section">
+        <div class="section__header">
+            <h2 class="section__title">Practice &amp; pilot</h2>
+            <span class="section__count">Try the Interface Demos before starting a real session (<em>optional</em>)</span>
+        </div>
+        <div class="grid grid--demo">
+            {% for user in full %}
+                {% if user.name == 'Interface_demo_without_highlights' %}
+                <a class="card" href="/WebEmrGui/eye_test/{{ user.name }}/">
+                    <span class="card__icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.58 10.58a3 3 0 0 0 4.24 4.24"/><path d="M16.68 16.68C15.16 17.51 13.6 18 12 18c-5.5 0-9-7-9-7a17.5 17.5 0 0 1 4.06-4.94"/><path d="M9.88 5.09C10.58 5.03 11.29 5 12 5c5.5 0 9 7 9 7-.45.84-1.01 1.65-1.66 2.4"/></svg>
+                    </span>
+                    <div class="card__body">
+                        <div class="card__title">Interface Demo</div>
+                        <p class="card__caption">Without highlights</p>
+                    </div>
+                </a>
+                {% endif %}
+            {% endfor %}
+            {% for user in full %}
+                {% if user.name == 'Interface_demo_with_highlights' %}
+                <a class="card" href="/WebEmrGui/eye_test/{{ user.name }}/">
+                    <span class="card__icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M21 12s-3.5 7-9 7-9-7-9-7 3.5-7 9-7 9 7 9 7z"/></svg>
+                    </span>
+                    <div class="card__body">
+                        <div class="card__title">Interface Demo</div>
+                        <p class="card__caption">With highlights</p>
+                    </div>
+                </a>
+                {% endif %}
+            {% endfor %}
+            <div class="card card--pilots">
+                <span class="card__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                </span>
+                <div class="card__body">
+                    <div class="card__title">Pilots</div>
+                    <div class="pilot-chips">
+                        <a class="pilot-chip card--needs-code" data-pid="Pilot_1" href="/WebEmrGui/eye_test/Pilot_1/">Pilot 1</a>
+                        <a class="pilot-chip card--needs-code" data-pid="Pilot_2" href="/WebEmrGui/eye_test/Pilot_2/">Pilot 2</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         Section: Study participants
+         ============================================================ -->
+    <section class="section">
+        <div class="section__header">
+            <h2 class="section__title">Study participants</h2>
+            <span class="section__count">P01 – P24</span>
+        </div>
+        <div class="grid">
+            {% for user in full %}
+                {% if user.name|slice:":1" == "P" and user.name != 'Pilot_1' and user.name != 'Pilot_2' %}
+                <a class="card card--participant card--needs-code"
+                   data-pid="{{ user.name }}"
+                   href="/WebEmrGui/eye_test/{{ user.name }}/">
+                    <span class="card__icon">{{ user.name|slice:"1:" }}</span>
+                    <div class="card__body">
+                        <div class="card__title">Participant {{ user.name|slice:"1:" }}</div>
+                        <p class="card__caption">Start session</p>
+                    </div>
+                </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Access-code modal — populated and revealed by the script below. -->
+    <div id="code-modal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.45); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:#FFFFFF; border-radius:12px; box-shadow:0 8px 28px rgba(15,23,42,0.18); padding:28px 32px; width:380px; max-width:calc(100vw - 32px); font-family:'Inter',sans-serif; color:#1F2937;">
+            <p style="font-size:11px;color:#5C6B7A;letter-spacing:.08em;font-weight:600;margin:0 0 4px;text-transform:uppercase;">Access required</p>
+            <h3 id="code-modal-title" style="font-size:18px;font-weight:600;margin:0 0 6px;">Enter your code</h3>
+            <p style="font-size:13px;color:#5C6B7A;margin:0 0 16px;line-height:1.5;">Please enter the 4-digit access code the study coordinator gave you.</p>
+            <input id="code-input" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="4"
+                   style="width:100%; box-sizing:border-box; font-family:'Inter',sans-serif; font-size:22px; letter-spacing:.4em; text-align:center; padding:12px 14px; border:1px solid #DCE6F0; border-radius:10px; background:#F4F8FC; color:#1F2937;">
+            <p id="code-error" style="font-size:12px;color:#B42318;margin:8px 0 0; min-height:18px;"></p>
+            <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:14px;">
+                <button id="code-cancel" type="button" style="font-family:'Inter',sans-serif;font-size:13px;font-weight:500;padding:10px 18px;border-radius:8px;border:1px solid #DCE6F0;background:#FFFFFF;color:#1F2937;cursor:pointer;">Cancel</button>
+                <button id="code-submit" type="button" disabled style="font-family:'Inter',sans-serif;font-size:13px;font-weight:500;padding:10px 18px;border-radius:8px;border:1px solid #003594;background:#003594;color:#FFFFFF;cursor:pointer;">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    /* Per-participant access code prompt. Intercepts clicks on any
+       `.card--needs-code` participant card, opens the modal, and only
+       navigates to the eye_test URL when the participant enters a valid
+       code (validated server-side via `?code=NNNN`). Wrong codes return
+       403 and we surface the error inline. */
+    (function () {
+        var modal = document.getElementById('code-modal');
+        var title = document.getElementById('code-modal-title');
+        var input = document.getElementById('code-input');
+        var errEl = document.getElementById('code-error');
+        var btnGo = document.getElementById('code-submit');
+        var btnCancel = document.getElementById('code-cancel');
+        var pendingHref = null;
+        var pendingPid  = null;
+
+        function open(href, pid) {
+            pendingHref = href;
+            pendingPid  = pid;
+            title.textContent = 'Enter the code for ' + pid;
+            input.value = '';
+            errEl.textContent = '';
+            btnGo.disabled = true;
+            modal.style.display = 'flex';
+            setTimeout(function () { input.focus(); }, 30);
+        }
+        function close() {
+            modal.style.display = 'none';
+            pendingHref = pendingPid = null;
+        }
+        function refresh() {
+            btnGo.disabled = !/^\d{4}$/.test(input.value);
+        }
+        input.addEventListener('input', function () {
+            input.value = input.value.replace(/[^0-9]/g, '').slice(0, 4);
+            refresh();
+        });
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && !btnGo.disabled) btnGo.click();
+            if (e.key === 'Escape') close();
+        });
+        btnCancel.addEventListener('click', close);
+        modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
+
+        btnGo.addEventListener('click', function () {
+            if (!pendingHref) return;
+            btnGo.disabled = true;
+            btnGo.textContent = 'Checking…';
+            var url = pendingHref + (pendingHref.indexOf('?') >= 0 ? '&' : '?') + 'code=' + encodeURIComponent(input.value);
+            // Probe server first so a wrong code surfaces inline; if OK,
+            // navigate. (Probing avoids landing on a 403 page.)
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url, true);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState !== 4) return;
+                btnGo.textContent = 'Continue';
+                if (xhr.status === 403) {
+                    errEl.textContent = 'That code doesn\'t match. Please try again.';
+                    input.value = '';
+                    refresh();
+                    input.focus();
+                    return;
+                }
+                // For 200 / 302 / anything else, do the real navigation.
+                window.location.href = url;
+            };
+            xhr.send();
+        });
+
+        document.querySelectorAll('.card--needs-code').forEach(function (el) {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+                open(el.getAttribute('href'), el.getAttribute('data-pid'));
+            });
+        });
+    })();
+    </script>
+
+    <!-- ============================================================
+         Footer
+         ============================================================ -->
+    <footer class="footer">
+        <a class="coord-link" href="/WebEmrGui/admin_report/" title="Study coordinator only">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Coordinator access
+        </a>
+        <div style="margin-top:16px;">
+            Department of Biomedical Informatics &nbsp;·&nbsp; University of Pittsburgh<br>
+            Need help? Contact the study coordinator.
+        </div>
+    </footer>
+
+</div>
+
+</body>
+</html>

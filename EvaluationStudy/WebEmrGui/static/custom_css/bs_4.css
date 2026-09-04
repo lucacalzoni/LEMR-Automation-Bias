@@ -1,0 +1,218 @@
+body {
+    padding-top: 50px !important;
+}
+
+.container{
+    min-width: 100%;
+}
+
+
+.labbox{
+    height: 91.5vh;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    /*padding-top: 35px;*/
+}
+
+.lab-group {
+    border-style:solid;
+    border-width:1px;
+    border-color: #888888;
+    background: #fbfbfb;
+    display: none;
+    padding-right: 0;
+    padding-left: 0;
+}
+
+.chartrow {
+    /*width: 30%;
+    margin: 10px;*/
+    width: 21%;
+    margin: 15px;
+    letter-spacing: -0.31em;
+    float: left;
+    background: #eeeeee;
+
+
+}
+
+.vitalrow {
+    width: 90%;
+    margin: 15px;
+    letter-spacing: -0.31em;
+    float: left;
+    background: #eeeeee;
+
+}
+
+.scroll-box{
+    padding-right:0px;
+    padding-left:0px;
+}
+
+.timepane{
+    padding-right: 5px;
+    padding-left: 5px;
+    background: #808080;
+  /*  position:absolute fixed;
+    left:0px;
+    top:0px;
+    z-index: 10;*/
+
+}
+
+.timerow{
+    background: #808080;
+    color: #FFFFFF;
+    width: 21%;
+    float: left;
+    margin-left: 22px;
+    margin-right: 25px;
+}
+
+.vit-timerow{
+    background: #808080;
+    color: #FFFFFF;
+    width: 90%;
+    margin-left: 12px;
+    float: left;
+}
+
+.title{
+    text-align:center;
+    background: #B0B0B0 ;
+    /*color: black;
+    font-weight:bold;*/
+    color: white;
+
+}
+
+.topchartrow {
+    width: auto;
+    letter-spacing: -0.31em;
+    background: #FFFFB2;
+    border-bottom-style:solid;
+    /*border-width:1px;*/
+    border-color: #888888;
+
+}
+
+.charttitlerow {
+    width: 100%;
+    background: #FFFFFF ;
+    font-weight: bold;
+    letter-spacing: normal;
+    /*text-indent:50px;*/
+    float:left;
+    text-align: center;
+}
+
+.chartcol1, .chartcol2, .chartcol3, .chartcolfull, .chartcolTS{
+    display: inline-block;
+    vertical-align: middle;
+    border: 0 solid black;
+    padding: 0;
+    margin: 0;
+    letter-spacing: normal;
+    font-size: 12pt;
+    overflow: hidden;
+}
+
+.chartcol1 {
+    width: 65%;
+    margin-left: 10px;
+    margin-right: 10px;
+    white-space: nowrap ;
+}
+
+.chartcol2 {
+    width: 25%;
+    white-space: nowrap ;
+    text-overflow: ellipsis;
+}
+
+.chartcol3 {
+    margin-top: 5px;
+    margin-left: 5px;
+    margin-bottom: 5px;
+    padding-right: 10px;
+    width: 100%;
+    display: show;
+
+}
+
+.chartcolfull{
+    width:100%;
+    margin-left: 10px;
+    margin-right: 10px;
+    text-align: center;
+    background: white;
+
+}
+
+.chartcolTS{
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left: 5px;
+    width: 25%;
+    z-index: 10px;
+}
+
+
+.report {
+    margin-left: 5px;
+    margin-right: 5px;
+    /*height: 90%;*/
+    font-family: "Courier New";
+    font-weight: bold;
+    overflow: auto;
+    /*overflow-y:hidden;*/
+    height:88vh;
+
+}
+
+.navbar-text {
+    font-weight: bold;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow:hidden;
+}
+
+.navbar-nav > li > a {
+    font-weight: bold;
+}
+
+.navbar-nav > li {
+    font-weight: bold;
+}
+
+.lab_groupings{
+    margin-left: 5px;
+    border-right: solid;
+    /*border-width: 1px;*/
+    border-color: black;
+    color:black;
+}
+
+.expander{
+    float: right;
+    margin-right:10px;
+    font-size: 8pt;
+
+}
+
+#loading_new_patient {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(192, 192, 192, 0.5);
+    background-image: url("https://apply.commonapp.org/Include/Contents/images/animated_loading_icon.gif");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.highcharts-container{width:100% !important; height:100% !important;}

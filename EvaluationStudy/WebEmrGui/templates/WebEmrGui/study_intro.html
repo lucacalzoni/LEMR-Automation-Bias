@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Welcome — LEMR Study</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #F4F8FC; --surface: #FFFFFF; --border: #DCE6F0; --border-soft: #ECF1F7;
+            --text: #1F2937; --text-muted: #5C6B7A;
+            --pitt-blue: #003594; --pitt-blue-50: #E8EFFB;
+            --proto-blue: #C1E1EE;
+        }
+        * { box-sizing: border-box; }
+        html, body {
+            margin: 0; padding: 0; background: var(--bg); color: var(--text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .shell { max-width: 820px; margin: 0 auto; padding: 56px 32px 80px; }
+        .header { text-align: center; margin-bottom: 32px; }
+        .header img { height: 56px; width: auto; display: block; margin: 0 auto 24px; }
+        .header h1 {
+            font-size: 28px; font-weight: 600; letter-spacing: -0.02em;
+            margin: 0 0 10px; line-height: 1.25;
+        }
+        .header p.sub {
+            font-size: 14px; line-height: 1.55; color: var(--text-muted);
+            margin: 0 auto; max-width: 620px;
+        }
+        .panel {
+            background: var(--surface); border: 1px solid var(--border);
+            border-left: 3px solid var(--proto-blue);
+            border-radius: 12px; padding: 36px 40px 32px;
+            box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+        }
+        .panel p {
+            font-size: 15.5px; line-height: 1.65; margin: 0 0 16px;
+        }
+        .panel p:last-of-type { margin-bottom: 0; }
+        .panel strong { font-weight: 600; color: var(--pitt-blue); }
+        .panel em.callout {
+            display: block; margin-top: 22px;
+            font-style: normal; font-size: 14px;
+            background: var(--pitt-blue-50);
+            border-radius: 10px; padding: 14px 18px;
+            color: var(--text);
+        }
+        .actions {
+            display: flex; justify-content: flex-end; align-items: center;
+            margin-top: 28px;
+        }
+        button.next {
+            font-family: inherit; font-size: 15px; font-weight: 500;
+            border: 1px solid var(--pitt-blue);
+            padding: 13px 32px; border-radius: 10px;
+            cursor: pointer; transition: all 0.15s ease;
+            background: var(--pitt-blue); color: #FFFFFF;
+        }
+        button.next:hover:not([disabled]) {
+            background: #002A75;
+            box-shadow: 0 4px 16px rgba(0,53,148,0.18);
+        }
+        button.next[disabled] {
+            background: #BCC4CF; border-color: #BCC4CF; cursor: not-allowed;
+        }
+        .saving { color: var(--text-muted); font-size: 12px; margin-right: 10px; }
+        .footer { margin-top: 48px; text-align: center; font-size: 12px; color: #95A4B5; }
+    </style>
+</head>
+<body>
+<div class="shell">
+    <div class="header">
+        <img src="/static/logos/Pitt.png" alt="University of Pittsburgh">
+        <h1>Welcome, {{ user_id }}</h1>
+        <p class="sub">Please read the brief overview below before we get started.</p>
+    </div>
+
+    <div class="panel">
+        <p><strong>Thank you for participating.</strong> In this study, you will use a research prototype called the <strong>Learning EMR</strong>. The Learning EMR is designed to help clinicians review patient information and, in some cases, display selected data in a dedicated highlighted area. We are studying how ICU physicians interact with this type of EMR display while reviewing patient cases.</p>
+
+        <p>First, you will answer a few demographic questions and complete a brief questionnaire about your expectations of the system. You will then review one practice case to become familiar with the interface. After that, you will review <strong>six ICU patient cases</strong>.</p>
+
+        <p>For each case, please review the available information as if you were preparing to present the patient during <strong>morning rounds</strong>, then select the data elements that were most important in your reasoning about that patient. Some cases may include a dedicated highlighted area and others may not. Please use the interface naturally and rely on your own clinical judgment.</p>
+
+        <p>At the end of the session, you will complete the questionnaire about the Learning EMR one final time.</p>
+
+        <em class="callout">There are <strong>no right or wrong answers</strong>; please respond based on your own experience using the prototype.</em>
+
+        <div class="actions">
+            <span class="saving" id="saving_label" style="display:none;">Saving…</span>
+            <button type="button" class="next" id="continue_btn">Continue</button>
+        </div>
+    </div>
+
+    <div class="footer">University of Pittsburgh · Department of Biomedical Informatics</div>
+</div>
+
+<script>
+    (function () {
+        var USER_ID   = "{{ user_id|escapejs }}";
+        var NEXT_PATH = "{{ next_path|escapejs }}";
+
+        var btn   = document.getElementById('continue_btn');
+        var label = document.getElementById('saving_label');
+
+        function goNext() {
+            window.location.href = NEXT_PATH;
+        }
+
+        btn.addEventListener('click', function () {
+            btn.disabled = true;
+            label.style.display = 'inline';
+            // Post the flag, but don't block navigation if it errors —
+            // demo / sandbox users hit this endpoint as a no-op anyway,
+            // and even for study users a transient network error
+            // shouldn't trap the participant on this screen forever.
+            var form = new FormData();
+            form.append('user_id', USER_ID);
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/WebEmrGui/save_intro_seen/', true);
+            xhr.onload  = function () { goNext(); };
+            xhr.onerror = function () { goNext(); };
+            xhr.send(form);
+        });
+    })();
+</script>
+</body>
+</html>

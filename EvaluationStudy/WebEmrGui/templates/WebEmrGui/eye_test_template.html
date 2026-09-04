@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     <script src="/static/jcode/jquery.js"></script>
+    <meta charset="UTF-8">
+    <title>Calibration</title>
+
+<style>
+    .center-div
+    {
+      position: absolute;
+      margin: auto;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      width: 800px;
+      height: 80px;
+      background-color: #c1e1ee;
+      text-align: center;
+      border-radius: 3px;
+    }
+</style>
+</head>
+<body bgcolor="#c1e1ee">
+<div id="directions" class="center-div" style="font-family: verdana" style="background-color: #c1e1ee">
+  <!-- EYE TRACKING DEACTIVATED - BEGIN
+  <h1>Please stare at the center of each red box that appears</h1> </div>
+  # EYE TRACKING DEACTIVATED - END -->
+  <h3>Loading cases...</h3> </div>
+
+<script>
+    {% autoescape off %}
+      console.log('Starting calibration...');
+        var divsize = 7;
+        var counter = 0;
+        var dict_x = [0, 1920*0.1+4, 1920*0.9+4, 1920*0.5+4, 1920*0.1+4, 1920*0.9+4, 1920*0.1+4, 1920*0.5+4, 1920*0.9+4, 1920*0.5+4];
+        var dict_y = [0, 1080*0.1+4, 1080*0.1+4, 1080*0.5+4, 1080*0.9+4, 1080*0.9+4, 1080*0.5+4, 1080*0.1+4, 1080*0.5+4, 1080*0.9+4];
+        var out_file_name = 'eye_'+Date.now();
+        if({{ skip_eye_cal }}) { counter = 10 }
+        var refreshIntervalId = setInterval(function makeDiv() {
+            if (counter == 10) {
+                var message =
+                    "<h3>Cases loaded. Click Continue when ready to start.</h3>"
+                    + "<button id='continue_button' onclick=continue_clicked('/WebEmrGui/{{ next_case }}/{{ user_id }}/')>Continue</button></a>";
+                console.log('Calibration complete. Loading next case '+'{{ next_case }}'+' for user '+'{{ user_id }}'+'...');
+                $('#directions').html(message).fadeIn(0);
+                clearInterval(refreshIntervalId);
+            } else if (counter == 0) {
+                $('#directions').fadeOut(0);
+            } else {
+
+                $newdiv = $('<div/>').css({
+                    'width': divsize + 'px',
+                    'height': divsize + 'px',
+                    'background-color': '#FF0000'
+                });
+                $tdiv = $('<div/>').css({
+                    'width': divsize * 4 + 'px',
+                    'height': divsize * 4 + 'px',
+                    'background-color': '#ffa266'
+                });
+
+                var posx = dict_x[counter];
+                var posy = dict_y[counter];
+                console.log('Current X and Y positions: '+posy+ ' ' + posx);
+
+                $newdiv.css({
+                    'position': 'absolute',
+                    'left':posx + 'px' ,
+                    'top':posy + 'px'
+                }).appendTo('body' ).attr('id', 'c').show();
+                setTimeout(function (){
+                    $newdiv.remove();
+                    send_div_locations(); // and empty div zone while waiting for next calibration point to start
+                },1700) ;
+                console.log('Timestamp 1: '+Date.now());
+                $tdiv.css({
+                    'position': 'absolute',
+                    'left':posx-(divsize+4)+ 'px',
+                    'top':posy-(divsize+4)+ 'px'
+                }).appendTo
+                ( 'body' ).attr('id', 't').show().fadeOut(800); setTimeout(function(){
+                send_div_locations(); // don't send locations until after boarder box dissapears.
+                    console.log('Timestamp 2: '+Date.now());
+                    },800) ; // needs to be the same as fade out above
+
+                }
+                counter = counter + 1;
+        }, 1800);
+
+
+        function continue_clicked(curr_url){
+            $('#continue_button').attr("disabled", true);
+            window.location.href = curr_url;
+        }
+
+
+function send_div_locations(){
+    var curr_timestamp = Date.now();
+    var curr_pixelmap = [];
+
+    $('#c').each(function () {
+        var edges = this.getBoundingClientRect();
+        var curr_array = [Math.round(edges.top), Math.round(edges.left), Math.round(edges.bottom), Math.round(edges.right)];
+        curr_pixelmap.push(curr_array);
+    });
+
+    // Telemetry deactivated; calibration is always skipped so this code never executes.
+}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0; i<ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1);
+        if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
+    }
+    return "";
+}
+
+{% endautoescape %}
+</script>
+</body>
+</html>

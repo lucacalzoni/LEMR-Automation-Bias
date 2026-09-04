@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Study results — LEMR Coordinator Report</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #F4F8FC; --surface: #FFFFFF; --border: #DCE6F0; --border-soft: #ECF1F7;
+            --text: #1F2937; --text-muted: #5C6B7A; --text-faint: #95A4B5;
+            --pitt-blue: #003594; --pitt-blue-50: #E8EFFB;
+            --pitt-gold: #FFB81C;
+            --proto-blue: #C1E1EE;
+            --good: #047857; --good-50: #DCFCE7;
+            --bad:  #B42318; --bad-50:  #FEE4E2;
+            --warn: #B45309; --warn-50: #FEF3C7;
+        }
+        * { box-sizing: border-box; }
+        html, body {
+            margin: 0; padding: 0; background: var(--bg); color: var(--text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        code, .mono { font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px; }
+        .shell { max-width: 1100px; margin: 0 auto; padding: 32px 32px 64px; }
+
+        .header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding-bottom: 18px; border-bottom: 1px solid var(--border); margin-bottom: 28px;
+            gap: 16px;
+        }
+        .header__title { display: flex; align-items: center; gap: 14px; }
+        .header__title img { height: 36px; }
+        .header__title h1 { font-size: 18px; font-weight: 600; margin: 0; }
+        .header__title .sub { color: var(--text-faint); font-size: 12px; margin-top: 2px; }
+        .header__actions { display: flex; gap: 8px; }
+        .header__actions a {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 14px; font-size: 13px; font-weight: 500;
+            color: var(--pitt-blue); background: var(--pitt-blue-50);
+            border-radius: 8px; text-decoration: none; transition: all 0.15s ease;
+        }
+        .header__actions a:hover { background: var(--pitt-blue); color: #FFFFFF; }
+        .header__actions a.secondary {
+            background: var(--surface);
+            border: 1px solid var(--border);
+        }
+        .header__actions a.secondary:hover {
+            background: var(--pitt-blue);
+            border-color: var(--pitt-blue);
+            color: #FFFFFF;
+        }
+
+        .summary {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px; margin-bottom: 32px;
+        }
+        .summary__cell {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 10px; padding: 14px 16px;
+        }
+        .summary__cell h4 {
+            margin: 0 0 4px; font-size: 11px; font-weight: 600;
+            color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.06em;
+        }
+        .summary__cell .val { font-size: 22px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+
+        .participant {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; padding: 24px 28px; margin-bottom: 18px;
+            box-shadow: 0 1px 2px rgba(15,23,42,0.03);
+        }
+        .participant__header {
+            display: flex; align-items: baseline; justify-content: space-between;
+            margin-bottom: 14px; gap: 12px; flex-wrap: wrap;
+        }
+        .participant__id { font-size: 18px; font-weight: 600; color: var(--text); margin: 0; }
+        .participant__id .badge {
+            display: inline-block; margin-left: 8px; padding: 2px 8px;
+            background: var(--proto-blue); color: var(--pitt-blue);
+            border-radius: 4px; font-size: 12px; font-weight: 500; vertical-align: 2px;
+        }
+        .participant__meta {
+            font-size: 13px; color: var(--text-muted); display: flex; gap: 18px; flex-wrap: wrap;
+        }
+        .participant__meta strong { color: var(--text); font-weight: 500; }
+
+        details.case { border-top: 1px solid var(--border-soft); padding: 10px 0; }
+        details.case[open] { padding-bottom: 16px; }
+        details.case summary {
+            cursor: pointer; list-style: none; display: flex; align-items: center; gap: 12px;
+            padding: 8px 0; font-size: 14px;
+        }
+        details.case summary::-webkit-details-marker { display: none; }
+        .case__order {
+            width: 24px; height: 24px; border-radius: 50%;
+            background: var(--pitt-blue-50); color: var(--pitt-blue);
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 600; flex-shrink: 0;
+        }
+        .case__id { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text); flex-shrink: 0; }
+        .case__cond { font-size: 12px; padding: 2px 8px; border-radius: 4px; font-weight: 500; flex-shrink: 0; }
+        .cond-none    { background: var(--border); color: var(--text-muted); }
+        .cond-correct { background: var(--good-50); color: var(--good); }
+        .cond-mixed   { background: var(--warn-50); color: var(--warn); }
+        .cond-intro   { background: var(--proto-blue); color: var(--pitt-blue); }
+        .case__metric { font-size: 12px; color: var(--text-faint); margin-left: auto; font-variant-numeric: tabular-nums; }
+
+        .case__body { padding: 8px 0 0 36px; font-size: 13px; }
+        .case__grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 18px 28px;
+            margin: 12px 0 8px;
+        }
+        .case__grid h4 {
+            font-size: 11px; font-weight: 600; color: var(--text-faint);
+            text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 6px;
+        }
+        .case__grid ul { margin: 0; padding-left: 0; list-style: none; }
+        .case__grid li { margin: 0 0 2px; padding: 2px 6px; border-radius: 3px; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+        .li-correct { background: var(--good-50); color: var(--good); }
+        .li-missed  { background: var(--bad-50);  color: var(--bad); }
+        .li-commission { background: var(--warn-50); color: var(--warn); }
+        .li-spurious   { background: #F4F4F0; color: var(--text-muted); }
+        .li-neutral    { background: var(--border-soft); color: var(--text); }
+        .li-intent     { font-weight: 500; }
+
+        /* Per-case header tiles: 3 timing tiles + 2 error-count tiles.
+           Each tile is small, with the metric label on top and the value
+           on the bottom in tabular-nums. */
+        .case-tiles {
+            display: grid; grid-template-columns: repeat(5, 1fr);
+            gap: 8px; font-size: 11px; color: var(--text-muted); margin: 12px 0 18px;
+        }
+        .case-tiles > div {
+            background: var(--border-soft); border-radius: 8px;
+            padding: 10px 10px; text-align: center;
+        }
+        .case-tiles > div .v {
+            display: block; font-weight: 600; color: var(--text);
+            font-size: 16px; font-variant-numeric: tabular-nums; margin-top: 4px;
+        }
+        .case-tiles > div.is-error .v { color: var(--bad); }
+        .case-tiles > div.is-zero  .v { color: var(--good); }
+
+        /* "Case Setup" and "User Selections" sub-section panels. Each row
+           shows a title + count on its own line, with the items list on
+           the row below in blue tabular type. */
+        .case-section {
+            margin: 14px 0 6px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-soft);
+        }
+        .case-section h3 {
+            font-size: 11px; font-weight: 600; color: var(--text-faint);
+            text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 8px;
+        }
+        .case-row { margin: 0 0 10px; }
+        .case-row__title {
+            font-size: 13px; font-weight: 500; color: var(--text); margin: 0;
+        }
+        .case-row__title .count {
+            font-weight: 600; color: var(--pitt-blue); margin-left: 4px;
+            font-variant-numeric: tabular-nums;
+        }
+        .case-row__items {
+            font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px;
+            color: var(--pitt-blue); background: var(--pitt-blue-50);
+            padding: 6px 10px; border-radius: 6px; margin: 4px 0 0;
+            line-height: 1.5; word-break: break-word;
+        }
+        .case-row__items.is-empty { color: var(--text-faint); background: var(--border-soft); font-style: italic; }
+        .case-row__items.is-error { color: var(--bad); background: var(--bad-50); }
+        .case-row__items.is-warn  { color: var(--warn); background: var(--warn-50); }
+
+        .rationales { margin: 10px 0 0; }
+        .rationales h4 { font-size: 11px; font-weight: 600; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.06em; margin: 12px 0 6px; }
+        .rationales table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .rationales th, .rationales td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--border-soft); vertical-align: top; }
+        .rationales th { color: var(--text-faint); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
+        .rationales td.item { font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+
+        .trust-row { display: inline-flex; gap: 4px; vertical-align: -2px; }
+        .trust-dot { width: 14px; height: 14px; border-radius: 4px; background: var(--border); }
+        .trust-dot.on { background: var(--pitt-gold); }
+
+        .empty {
+            text-align: center; padding: 80px 32px; color: var(--text-muted); font-size: 14px;
+        }
+        .reset-btn {
+            font-family: inherit; font-size: 12px; font-weight: 500;
+            background: transparent; color: var(--bad); border: 1px solid var(--bad);
+            padding: 6px 12px; border-radius: 6px; cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .reset-btn:hover { background: var(--bad); color: #FFFFFF; }
+        .reset-btn::before { content: "↺ "; font-weight: 700; }
+        .footer { margin-top: 56px; text-align: center; font-size: 11px; color: var(--text-faint); }
+    </style>
+</head>
+<body>
+<div class="shell">
+
+    <div class="header">
+        <div class="header__title">
+            <img src="/static/logos/Pitt.png" alt="University of Pittsburgh">
+            <div>
+                <h1>Study results</h1>
+                <div class="sub">LEMR Evaluation Study — Coordinator view</div>
+            </div>
+        </div>
+        <div class="header__actions">
+            <a class="secondary" href="/WebEmrGui/" title="Back to study home page">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10"/></svg>
+                Back to home
+            </a>
+            <a href="/WebEmrGui/admin_report/?password={{ password }}&format=csv">Download CSV</a>
+        </div>
+    </div>
+
+    {% if not participants %}
+        <div class="empty" style="margin-bottom:28px;">
+            No participant results have been saved yet — the cards below
+            (per-participant access codes, demo-user resets, summary
+            tiles) still render so the coordinator can hand out codes
+            and reset demo accounts before the first session starts.
+            Once a participant completes at least one case, their
+            per-participant details will appear at the bottom.
+        </div>
+    {% endif %}
+
+    <div class="summary">
+        <div class="summary__cell">
+            <h4>Participants started</h4>
+            <div class="val">{{ participants|length }}</div>
+        </div>
+        <div class="summary__cell">
+            <h4>Avg trust before</h4>
+            <div class="val">{{ trust_pre_avg }}{% if trust_pre_avg != "—" %} <span style="font-size:14px;color:var(--text-muted);font-weight:500;">/ 5</span>{% endif %}</div>
+        </div>
+        <div class="summary__cell">
+            <h4>Avg trust after</h4>
+            <div class="val">{{ trust_post_avg }}{% if trust_post_avg != "—" %} <span style="font-size:14px;color:var(--text-muted);font-weight:500;">/ 5</span>{% endif %}</div>
+        </div>
+        <div class="summary__cell">
+            <h4>Avg commission errors</h4>
+            <div class="val">{{ commission_avg }}{% if commission_avg != "—" %} <span style="font-size:14px;color:var(--text-muted);font-weight:500;">/ participant</span>{% endif %}</div>
+        </div>
+        <div class="summary__cell">
+            <h4>Avg omission errors</h4>
+            <div class="val">{{ omission_avg }}{% if omission_avg != "—" %} <span style="font-size:14px;color:var(--text-muted);font-weight:500;">/ participant</span>{% endif %}</div>
+        </div>
+    </div>
+
+    {% if demo_rows %}
+    <div class="participant" style="margin-bottom:28px;">
+        <h2 class="participant__id" style="margin-bottom:14px;">Demo users</h2>
+        <p style="font-size:13px; color: var(--text-muted); margin: 0 0 12px;">
+            Interface demo accounts don't accumulate study data, but their
+            <code>cases_completed</code> counter in
+            <code>models/evaluation_study/participant_info/participant_info.txt</code>
+            bumps to 1 after use. Reset returns the counter to 0 so the demo
+            starts fresh next time.
+        </p>
+        <table class="rationales" style="width:auto; min-width: 60%;">
+            <thead>
+                <tr>
+                    <th style="width:50%">Demo user</th>
+                    <th style="width:20%">Cases completed</th>
+                    <th style="width:30%">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in demo_rows %}
+                <tr>
+                    <td><strong>{{ d.user_id }}</strong></td>
+                    <td><code>{{ d.cases_completed }}</code></td>
+                    <td>
+                        <!-- No confirmReset() here: demo accounts hold no
+                             study data, so a one-click reset is safer /
+                             faster than a full confirm dialog. -->
+                        <form method="POST" action="/WebEmrGui/reset_participant/"
+                              style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="user_id"  value="{{ d.user_id }}">
+                            <input type="hidden" name="password" value="{{ password }}">
+                            <button type="submit" class="reset-btn">Reset</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if access_code_rows %}
+    <div class="participant" style="margin-bottom:28px;">
+        <h2 class="participant__id" style="margin-bottom:14px;">Per-participant access codes</h2>
+        <p style="font-size:13px; color: var(--text-muted); margin: 0 0 12px;">
+            Each participant must enter their 4-digit code to start the study. Codes are sourced from
+            <code>models/evaluation_study/access_codes.txt</code> — regenerate or edit that file to rotate them.
+        </p>
+        <table class="rationales" style="width:auto; min-width: 40%;">
+            <thead>
+                <tr>
+                    <th style="width:60%">Participant</th>
+                    <th style="width:40%">Code</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in access_code_rows %}
+                <tr>
+                    <td><strong>{{ r.user_id }}</strong></td>
+                    <td><code style="font-size:14px; letter-spacing: 2px; font-weight: 600; color: var(--pitt-blue);">{{ r.code }}</code></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% for p in participants %}
+        <div class="participant">
+            <div class="participant__header">
+                <h2 class="participant__id">
+                    {{ p.user_id }}
+                    {% if p.completed_at %}<span class="badge">complete</span>{% endif %}
+                </h2>
+                <div class="participant__meta">
+                    {% if p.access_code %}<span>Code: <strong><code style="font-size:13px;letter-spacing:2px;color:var(--pitt-blue);">{{ p.access_code }}</code></strong></span>{% endif %}
+                    <span>Started: <strong>{{ p.started_at|default:"—" }}</strong></span>
+                    {% if p.completed_at %}<span>Completed: <strong>{{ p.completed_at }}</strong></span>{% endif %}
+                    <span>Trust (overall):
+                        {% if p.trust_pre_overall %}<strong>{{ p.trust_pre_overall }}/5</strong>{% else %}—{% endif %}
+                        →
+                        {% if p.trust_post_overall %}<strong>{{ p.trust_post_overall }}/5</strong>{% else %}—{% endif %}
+                    </span>
+                    <span>Cases: <strong>{{ p.cases|length }}</strong></span>
+                </div>
+                <form method="POST" action="/WebEmrGui/reset_participant/" style="margin:0;"
+                      onsubmit="return confirmReset('{{ p.user_id }}');">
+                    {% csrf_token %}
+                    <input type="hidden" name="user_id"  value="{{ p.user_id }}">
+                    <input type="hidden" name="password" value="{{ password }}">
+                    <button type="submit" class="reset-btn">Reset {{ p.user_id }}</button>
+                </form>
+            </div>
+
+            {% if p.demographics %}
+            <div class="case-section" style="margin-bottom:14px;">
+                <h3>Demographics</h3>
+                <table class="rationales" style="width:auto; min-width: 40%;">
+                    <tbody>
+                        {% for d in p.demographics %}
+                            <tr>
+                                <td style="width:55%">{{ d.label }}</td>
+                                <td>{{ d.value }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+
+            {% if p.trust_rows %}
+            <div class="case-section" style="margin-bottom:18px;">
+                <h3>Trust ratings (McKnight) — per category, mean of 3 items</h3>
+                <table class="rationales" style="width:auto; min-width: 60%;">
+                    <thead>
+                        <tr>
+                            <th style="width:60%">Category</th>
+                            <th style="width:20%">Pre</th>
+                            <th style="width:20%">Post</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in p.trust_rows %}
+                            <tr>
+                                <td>{{ r.label }}</td>
+                                <td>{% if r.pre_avg %}{{ r.pre_avg }}/5{% else %}—{% endif %}</td>
+                                <td>{% if r.post_avg %}{{ r.post_avg }}/5{% else %}—{% endif %}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+
+            {% for c in p.cases %}
+                <details class="case">
+                    <summary>
+                        <span class="case__order">{{ c.order_index|add:1 }}</span>
+                        <span class="case__id">{{ c.case_id }}</span>
+                        {% if c.is_intro %}
+                            <span class="case__cond cond-intro">intro</span>
+                        {% elif c.condition.show_highlights == 0 %}
+                            <span class="case__cond cond-none">no highlights</span>
+                        {% elif c.condition.incorrect_highlights == 1 %}
+                            <span class="case__cond cond-mixed">correct + incorrect</span>
+                        {% else %}
+                            <span class="case__cond cond-correct">correct only</span>
+                        {% endif %}
+                        <span class="case__metric">
+                            {{ c.selected_items|length }} selected ·
+                            {{ c.commission_count }} commission ·
+                            {{ c.omission_count }} omission
+                        </span>
+                    </summary>
+
+                    <div class="case__body">
+
+                        <!-- Top tiles: 3 timing tiles + 2 error-count tiles.
+                             Times are formatted as M:SS server-side;
+                             errors are plain integer counts (per spec). -->
+                        <div class="case-tiles">
+                            <div>Familiarize time <span class="v">{{ c.familiarize_time }}</span></div>
+                            <div>Present time <span class="v">{{ c.present_time }}</span></div>
+                            <div>Select time <span class="v">{{ c.select_time }}</span></div>
+                            <div class="{% if c.commission_count %}is-error{% else %}is-zero{% endif %}">
+                                Commission errors <span class="v">{{ c.commission_count }}</span>
+                            </div>
+                            <div class="{% if c.omission_count %}is-error{% else %}is-zero{% endif %}">
+                                Omission errors <span class="v">{{ c.omission_count }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Case Setup section: what the prototype is showing
+                             this participant for this case (ground truth +
+                             highlight composition). -->
+                        <div class="case-section">
+                            <h3>Case setup</h3>
+
+                            <div class="case-row">
+                                <p class="case-row__title">Relevant items for this case
+                                    <span class="count">{{ c.items_judges_relevant|length }}</span>
+                                </p>
+                                <p class="case-row__items {% if not c.items_judges_relevant %}is-empty{% endif %}">
+                                    {% if c.items_judges_relevant %}{{ c.items_judges_relevant|join:", " }}{% else %}—{% endif %}
+                                </p>
+                            </div>
+
+                            <div class="case-row">
+                                <p class="case-row__title">Relevant items that were not highlighted
+                                    <span class="count">{{ c.items_omitted_from_highlights|length }}</span>
+                                </p>
+                                <p class="case-row__items {% if not c.items_omitted_from_highlights %}is-empty{% endif %}">
+                                    {% if c.items_omitted_from_highlights %}{{ c.items_omitted_from_highlights|join:", " }}{% else %}—{% endif %}
+                                </p>
+                            </div>
+
+                            <div class="case-row">
+                                <p class="case-row__title">Non-relevant items that were highlighted
+                                    <span class="count">{{ c.items_falsely_highlighted|length }}</span>
+                                </p>
+                                <p class="case-row__items {% if not c.items_falsely_highlighted %}is-empty{% endif %}">
+                                    {% if c.items_falsely_highlighted %}{{ c.items_falsely_highlighted|join:", " }}{% else %}—{% endif %}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- User Selections section: what the participant
+                             actually marked, partitioned against the judges'
+                             relevant set into hits, misses, and false picks. -->
+                        <div class="case-section">
+                            <h3>User selections</h3>
+
+                            <div class="case-row">
+                                <p class="case-row__title">Items selected as relevant
+                                    <span class="count">{{ c.selected_items|length }}</span>
+                                </p>
+                                <p class="case-row__items {% if not c.selected_items %}is-empty{% endif %}">
+                                    {% if c.selected_items %}{{ c.selected_items|join:", " }}{% else %}—{% endif %}
+                                </p>
+                            </div>
+
+                            <div class="case-row">
+                                <p class="case-row__title">Missed relevant items (omission errors)
+                                    <span class="count">{{ c.omission_count }}</span>
+                                </p>
+                                <p class="case-row__items {% if not c.omission_errors %}is-empty{% else %}is-error{% endif %}">
+                                    {% if c.omission_errors %}{{ c.omission_errors|join:", " }}{% else %}—{% endif %}
+                                </p>
+                            </div>
+
+                            <div class="case-row">
+                                <p class="case-row__title">Items wrongly indicated as relevant (commission errors)
+                                    <span class="count">{{ c.commission_count }}</span>
+                                </p>
+                                <p class="case-row__items {% if not c.commission_errors %}is-empty{% else %}is-warn{% endif %}">
+                                    {% if c.commission_errors %}{{ c.commission_errors|join:", " }}{% else %}—{% endif %}
+                                </p>
+                            </div>
+                        </div>
+
+                        {% if c.commission_rationales %}
+                            <div class="rationales">
+                                <h4>Rationale per commission error</h4>
+                                <table>
+                                    <thead><tr><th style="width: 22%">Item</th><th>Why participant indicated it as relevant</th></tr></thead>
+                                    <tbody>
+                                    {% for r in c.commission_rationales %}
+                                        <tr><td class="item">{{ r.item }}</td><td>{{ r.rationale|default:"—" }}</td></tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% endif %}
+
+                        {% if c.omission_rationales %}
+                            <div class="rationales">
+                                <h4>Rationale per omission error</h4>
+                                <table>
+                                    <thead><tr><th style="width: 22%">Item</th><th style="width: 38%">Reason</th><th>Free text</th></tr></thead>
+                                    <tbody>
+                                    {% for r in c.omission_rationales %}
+                                        <tr>
+                                            <td class="item">{{ r.item }}</td>
+                                            <td>
+                                                {% if r.reason_code == 1 %}Considered, but deemed not relevant
+                                                {% elif r.reason_code == 2 %}Did not notice on screen
+                                                {% elif r.reason_code == 3 %}Noticed, but didn't carefully consider
+                                                {% elif r.reason_code == 4 %}Other
+                                                {% else %}—{% endif %}
+                                            </td>
+                                            <td>{{ r.free_text|default:"—" }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% endif %}
+
+                    </div>
+                </details>
+            {% endfor %}
+        </div>
+    {% endfor %}
+
+    <div class="footer">Department of Biomedical Informatics &nbsp;·&nbsp; University of Pittsburgh</div>
+</div>
+
+<script>
+function confirmReset(userId) {
+    var msg = "This will permanently delete every recorded answer for " + userId +
+              " (selections, rationales, phase times, trust ratings) and reset their " +
+              "cases-completed counter to 0.\n\n" +
+              "Type the participant id (" + userId + ") to confirm:";
+    var typed = window.prompt(msg, "");
+    if (typed === null) return false;            // cancelled
+    if (typed.trim() !== userId) {
+        alert("That didn't match. Reset cancelled.");
+        return false;
+    }
+    return true;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Study complete — LEMR</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #F4F8FC; --surface: #FFFFFF; --border: #DCE6F0; --text: #1F2937;
+            --text-muted: #5C6B7A; --pitt-blue: #003594; --pitt-blue-50: #E8EFFB;
+            --proto-blue: #C1E1EE;
+        }
+        html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            -webkit-font-smoothing: antialiased; }
+        .shell { max-width: 640px; margin: 0 auto; padding: 96px 32px 80px; text-align: center; }
+        .check {
+            width: 72px; height: 72px; margin: 0 auto 28px; border-radius: 50%;
+            background: var(--proto-blue);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .check svg { width: 36px; height: 36px; stroke: var(--pitt-blue); }
+        h1 { font-size: 30px; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 14px; }
+        p  { font-size: 15px; line-height: 1.55; color: var(--text-muted); margin: 0 auto 36px; max-width: 480px; }
+        a.home {
+            display: inline-block; padding: 12px 28px;
+            background: var(--pitt-blue); color: #FFFFFF; border-radius: 10px;
+            font-size: 14px; font-weight: 500; text-decoration: none;
+            transition: all 0.15s ease;
+        }
+        a.home:hover { background: #002A75; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,53,148,0.18); }
+        img.logo { height: 44px; margin: 0 0 48px; }
+    </style>
+</head>
+<body>
+<div class="shell">
+    <img class="logo" src="/static/logos/Pitt.png" alt="University of Pittsburgh">
+    <div class="check">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h1>Thank you, {{ user_id }}</h1>
+    <p>You've completed all the cases. Your responses have been recorded. You can now close this window or return to the home page.</p>
+    <a class="home" href="/WebEmrGui/home/{{ user_id }}/">Back to home</a>
+</div>
+</body>
+</html>

@@ -1,0 +1,52 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.egg-info/
+build/
+dist/
+
+# --- Virtual environments ---
+.venv/
+.venv-*/
+venv/
+env/
+ENV/
+
+# --- Django ---
+*.sqlite3
+*.sqlite3-journal
+db.sqlite3
+media/
+staticfiles/
+local_settings.py
+.env
+
+# --- Case data (never commit patient data, even synthetic during dev) ---
+# Bring your own via docs/CASE_FORMAT.md. Exception: resources/demo_study/
+# is the small documented demo set and IS tracked.
+models/
+!resources/demo_study/
+EvaluationStudy/models/
+
+# --- Results / exports (contain participant data) ---
+results/
+*.csv
+*.xlsx
+EvaluationStudy/results/
+
+# --- IDE ---
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Legacy / cruft ---
+*.bak
+*.orig
+.svn/

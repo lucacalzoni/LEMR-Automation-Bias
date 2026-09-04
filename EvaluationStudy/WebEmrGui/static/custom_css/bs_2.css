@@ -1,0 +1,202 @@
+body {
+    padding-top: 50px !important;
+}
+
+.container{
+    min-width: 100%;
+}
+
+
+.labbox{
+    height: 91.5vh;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    /*padding-top: 35px;*/
+}
+
+.lab-group {
+    border-style:solid;
+    border-width:1px;
+    border-color: #888888;
+    display: none;
+}
+
+.chartrow {
+    width: 50%;
+    letter-spacing: -0.31em;
+    float: left;
+   border-bottom:solid;
+    border-width:1px;
+    border-color: white;
+    background: #eeeeee;
+
+}
+
+.timepane{
+    padding-right: 50px;
+    padding-left: 15px;
+  /*  position:absolute fixed;
+    left:0px;
+    top:0px;
+    z-index: 10;*/
+
+}
+
+.timerow{
+    background: #808080;
+    color: #FFFFFF;
+    width: 50%;
+    float: left;
+}
+
+.title{
+    text-align:center;
+    background: #B0B0B0 ;
+    /*color: black;
+    font-weight:bold;*/
+    color: white;
+
+}
+
+.topchartrow {
+    width: auto;
+    letter-spacing: -0.31em;
+    background: #FFFFB2;
+    border-bottom-style:solid;
+    /*border-width:1px;*/
+    border-color: #888888;
+
+}
+
+.charttitlerow {
+    width: 100%;
+    background: #FFFFFF ;
+    font-weight: bold;
+    letter-spacing: normal;
+    /*text-indent:50px;*/
+    float:left;
+    text-align: center;
+}
+
+.chartcol1, .chartcol2, .chartcol3, .chartcolfull, .chartcolTS{
+    display: inline-block;
+    vertical-align: middle;
+    border: 0 solid black;
+    padding: 0;
+    margin: 0;
+    letter-spacing: normal;
+
+}
+
+.chartcol1 {
+    width: 20%;
+    margin-left: 10px;
+    margin-right: 10px;
+    overflow: hidden;
+    white-space: nowrap ;
+}
+
+.chartcol2 {
+    width: 10%;
+}
+
+.chartcol3 {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left: 5px;
+    width: 60%;
+
+}
+
+.chartcolfull{
+    width:100%;
+    margin-left: 10px;
+    margin-right: 10px;
+    text-align: center;
+    background: white;
+
+}
+
+.chartcolTS{
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left: 5px;
+    width: 25%;
+    z-index: 10px;
+}
+
+
+.report {
+    margin-left: 5px;
+    margin-right: 5px;
+    /*height: 90%;*/
+    font-family: "Courier New";
+    font-weight: bold;
+    overflow: auto;
+    /*overflow-y:hidden;*/
+    height:88vh;
+
+}
+
+.navbar-text {
+    font-weight: bold;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow:hidden;
+}
+
+.lock{
+   /*position: absolute;*/
+    /*position: fixed;*/
+}
+
+.navbar-nav > li > a {
+    font-weight: bold;
+}
+
+.navbar-nav > li {
+    font-weight: bold;
+}
+
+.topchart {
+   display: none;
+   list-style-type: none;
+}
+
+.sortable{
+    padding-left:0;
+    margin: 0;
+    border: 0;
+}
+
+#lab-sidebar {
+    overflow: auto;
+    height: 95%;
+}
+
+#jumpto {
+    margin-right: 100px;
+}
+
+#selected-labs {
+    /*width: 90%;*/
+    margin-left: 5%;
+    overflow-y: hidden;
+}
+
+
+.group_link{
+    padding: 0px;
+    margin: 0px 0px 0px 0px;
+
+}
+.lab_groupings{
+    margin-left: 5px;
+    border-right: solid;
+    /*border-width: 1px;*/
+    border-color: black;
+    color:black;
+}
+
+
+.highcharts-container{width:100% !important; height:100% !important;}

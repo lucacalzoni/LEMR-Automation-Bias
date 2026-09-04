@@ -1,0 +1,15 @@
+services:
+  lemr:
+    build: .
+    image: lemr:local
+    container_name: lemr
+    ports:
+      - "8000:8000"
+    environment:
+      # DJANGO_SECRET_KEY: "<set-a-long-random-string-for-anything-but-local-dev>"
+      # DJANGO_ALLOWED_HOSTS: ""
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      # Mount the demo/user case data into the location the code expects.
+      # See docs/CASE_FORMAT.md.
+      - ./resources/demo_study:/app/models/evaluation_study/data:ro

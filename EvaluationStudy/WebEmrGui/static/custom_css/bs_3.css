@@ -1,0 +1,1027 @@
+/* ----------------------------------------------------------------
+   Highcharts tooltip visibility. With `useHTML: true` set globally
+   (see Highcharts.setOptions at the top of emr_3.js), tooltips
+   render as HTML nodes inside .highcharts-tooltip / .highcharts-
+   tooltip-container. Force a very high z-index so the tooltip
+   always sits above adjacent chart cells, panel backgrounds, and
+   the New-Patient modal overlay. pointer-events: none stops the
+   tooltip from ever intercepting a click meant for the underlying
+   chart. background & border ensure the tooltip is legible on any
+   underlying colour (some cells are yellow, some pale green).
+   ---------------------------------------------------------------- */
+.highcharts-tooltip,
+.highcharts-tooltip > span,
+.highcharts-tooltip-container {
+    z-index: 9999 !important;
+    pointer-events: none;
+}
+.highcharts-tooltip > span {
+    background: #FFFFFF;
+    border: 1px solid #C8D3E0;
+    border-radius: 6px;
+    padding: 6px 10px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+    color: #1F2937;
+    font-family: inherit;
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+/* ----------------------------------------------------------------
+   Viewport auto-fit (Mac / Windows / any browser size).
+   The prototype was designed at a fixed 1920 px width — too big for
+   most Mac browsers and forced a horizontal scroll. We now let html /
+   body fill the actual viewport, keep #wrapper at its 1920 px design
+   width, and apply a `transform: scale()` to #wrapper at load and on
+   every resize (see the small script appended to index_3.html). The
+   scale factor preserves proportions exactly.
+
+   #wrapper is `position: fixed; top: 0; left: 0` so it anchors to the
+   viewport top-left regardless of any HTML-parsing quirks elsewhere
+   (the original template had a stray div before <head> that browsers
+   could misplace). Fixed-positioning + transform-origin: 0 0 ties the
+   prototype to the viewport's top-left corner unconditionally. */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #FFFFFF;
+    display: block;
+}
+
+bodyoriginal {
+    padding-top: 49.5px !important;
+}
+
+#wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 1920px;
+    height: auto;
+    transform-origin: 0 0;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+}
+
+
+.container{
+    min-width: 100%;
+}
+
+.border-box{
+    width: 1920px;
+}
+
+
+.labbox{
+    /* height: 100%; */
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: 745px;
+    padding-right: 5px;
+    /*padding-top: 35px;*/
+}
+
+.labbox-increased-height{
+    /* When the highlight panel is hidden, the labbox (and its sibling
+       boxes via the -increased-height variants below) must take over BOTH
+       the original highlight panel area (~50 px header + 340 px panel =
+       390 px) AND the gap that would otherwise leave the right column
+       (tasks + notes) overflowing past the left column. Using 1135 px
+       keeps the bottoms of both columns aligned in the standard 1080-
+       and 1100-line full-screen viewports and prevents the notes-
+       overflow the FS-no-highlights screenshot showed. */
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: 1135px;
+    padding-right: 5px;
+}
+
+.notebox{
+    height: 745px;
+    font-size: 10pt;
+    background: #FFFFFF;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding-right: 5px;
+    padding-left: 0px;
+    /*padding-top: 35px;*/
+}
+
+
+.font10{
+  font-size: 10pt;
+}
+
+.font12{
+  font-size: 12pt;
+}
+
+
+.tab-content {
+  padding-right:0;
+  padding-left:0;
+  padding-bottom: 0;
+  padding-top: 0;
+}
+
+.taskbox{
+    /*height: 25vh;*/
+    /*height: 17.8vh; */
+    height: 215px;
+    font-size: 12pt;
+    /*background: rgba(81, 245, 235, 0.8);*/
+    background: #c1e1ee;
+    /*overflow-y: hidden;*/
+    overflow-x: hidden;
+    overflow-y: scroll;
+    /*padding-top: 35px;*/
+    padding-right: 0px;
+    padding-left: 0px;
+}
+
+.notetaskbox{
+    /*height: 95.3vh;*/
+    /* height: 88.1vh; */
+    overflow-y: hidden;
+    overflow-x: hidden;
+    height: 1020px;
+    /*background: rgba(81, 245, 235, 0.8);*/
+    background: #FFFFFF;
+    font-size: 12pt;
+    /*overflow-y: hidden;*/
+    /*padding-top: 35px;*/
+    padding-right:5;
+    padding-left:5;
+
+    /*padding-left:5
+    /*padding-left:5; */
+    /*padding-top: 35px;*/
+}
+
+
+.nav-tabs {
+
+}
+
+.all-data-panel {
+  overflow-y: hidden;
+  overflow-x: hidden;
+  height: 745px;
+  padding-right: 0px;
+}
+
+.all-data-panel-increased-height {
+  overflow-y: hidden;
+  overflow-x: hidden;
+  height: 1135px;
+  padding-right: 0px;
+}
+
+.no-padding {
+margin-left: 0px;
+margin-right: 0px;
+padding-right: 0px;
+padding-left: 0px;
+padding-right: 0px;
+padding-left: 0px;">
+}
+
+.highlight-area {
+    /* Flex layout for the highlight-panel cells. Previously the cells
+       used float: left with width: calc(12.5% - 10px), which meant a
+       9th cell (present when a case has 9+ highlighted items) would
+       wrap to a new line but slot in NEXT TO a shorter cell from the
+       previous row — floats fill any leftmost horizontal slot at any
+       y, and mixed cell heights let a wrapped float squeeze under a
+       shorter neighbour instead of resetting to the far left. Flex
+       with flex-wrap:wrap uses line-box wrapping: each wrap creates a
+       fresh row that starts at the left, so the 9th, 10th, ... cells
+       always align cleanly. `.chartcolH` retains its width/margin so
+       we still get the same 8-cells-per-row grid on typical monitors.
+       */
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+}
+
+.increase_height {
+  height: 1020px;
+}
+
+.vitmedbox{
+    height: 745px;
+    /*height: 100vh;*/
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding-right: 5px;
+    /*padding-top: 35px;*/
+}
+
+.vitmedbox-increased-height{
+    height: 1135px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding-right: 5px;
+}
+
+.medbox{
+    height: 745px;
+    /*height: 973px;*/
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.medbox-increased-height{
+    height: 1135px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.half-vitmedbox{
+    height: 605 px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    /*padding-top: 35px;*/
+}
+
+.half-vitmedbox-increased-height{
+    /* Half-vitmedbox (the upper Vitals/Ventilator sub-panel) grows to keep
+       its proportional share of the expanded vitmedbox: the lower
+       I/O sub-panel stays a fixed 200 px, the whole column is now
+       1135 px, so the upper half takes 1135 - 200 = 935 px. */
+    height: 935px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.micro-vitmedbox{
+    height: 200px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    /*padding-top: 35px;*/
+}
+
+.micro-vitmedbox-increased-height{
+    height: 200px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    /*padding-top: 35px;*/
+}
+
+.t-border{
+    border-top: solid;
+}
+
+.lab-group {
+    border-style:solid;
+    border-width:1px;
+    border-color: #888888;
+    background: #fbfbfb;
+    display: none;
+    padding-right: 0;
+    padding-left: 0;
+}
+
+.chartrow {
+    /* All-patient-data row cell. Per Luca's QA spec, the row itself is
+       TRANSPARENT — the only colour-cue allowed on a row in the main
+       panel is the user's own selection (green via .is-user-selected).
+       Borders kept for visual grouping; background dropped so every
+       row in the main panel looks identical regardless of whether the
+       item is AI-highlighted, judges-relevant, or planted. The yellow
+       AI-highlight tint lives only in the Highlighted-data panel (see
+       highlight() in emr_3.js, which now scopes itself to .highlight_area).
+       `position: relative` is the anchor for the absolutely-positioned
+       ✓ overlay used by .is-user-selected.
+
+       IMPORTANT — dimensional stability under selection: the row must
+       occupy the same outer pixel size whether or not .is-user-selected
+       is applied. Otherwise the floated grid reflows every time a
+       participant clicks a row, and cells further down the layout
+       shift 1–2 px each time. We enforce this by (a) an explicit
+       1 px border-width (never the browser-default 'thin' which some
+       browsers interpret as 2 px on colour change), and (b)
+       box-sizing: border-box so the border is drawn INSIDE the width
+       rather than added to it. Both apply to the base .chartrow and
+       carry over unchanged into .is-user-selected. */
+    border-radius: 8px;
+    width: 22%;
+    margin: 5px;
+    margin-right: 12px;
+    letter-spacing: -0.31em;
+    float: left;
+    background: transparent;
+    border: 1px solid #c8d3e0;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.chartcolH {
+    /* Uniform highlight-panel cell. width / height kept identical for
+       every cell type (lab, vital, BP, med, IO) so the grid looks even
+       regardless of which chart-render path produced the content.
+       Background is transparent here — the yellow AI-highlight tint is
+       applied by highlight() in emr_3.js (which is now scoped to the
+       .highlight_area subtree, so the main panel stays unaffected).
+       Position relative is for the absolutely-positioned ✓ overlay
+       used by .is-user-selected; see that rule for details.
+
+       `min-width: 155px` is a safety net for the Highcharts +
+       floated-grid + inline-script timing gotcha: the first cell that
+       wrapped to a new row (Base solution in case 32981381) was being
+       constructed by Highcharts BEFORE the browser had laid out the
+       cell, so Highcharts measured 0 px and produced a 0×80 SVG. With
+       an explicit min-width, the cell always has a non-zero pixel
+       width from the moment it enters the DOM.
+
+       Width math: `.chartrow` (which every highlight-panel cell also
+       carries, because the DOM element has class="chartrow chartcolH")
+       declares `margin: 5px; margin-right: 12px`. Left inherited,
+       that added 17 px of horizontal margin per cell → 8 cells
+       overflowed the container by 8 × 17 = 136 px and the 8th cell
+       (e.g. WBC in the 8-item case) wrapped to a new row. Fix: give
+       .chartcolH its OWN symmetric 5 px margin (overriding the parent
+       rule) and subtract 10 px from the 12.5% width via calc() so
+       cell + margins sum back to exactly 12.5%. Result: 8 cells sum
+       to exactly 100% of the container regardless of panel width. */
+    width: calc(12.5% - 10px);
+    margin: 5px;
+    /* min-width: 175px is a balance between two forces:
+       - too small (e.g. 155) crushes the last-value credits ("2000" of NS
+         1000 mL clips its last digit; "mcg/hr" loses letters);
+       - too large (e.g. 180+) forces 8-item highlight panels to wrap on
+         standard monitors (~1400 px panel width) because 8 × 180 + margins
+         > panel width. 175 leaves room for the credits text at 13 px font
+         while still fitting 8 cells with the flex layout in .highlight-area. */
+    min-width: 175px;
+    min-height: 100px;
+    box-sizing: border-box;
+    /* float:left removed — .highlight-area is now display:flex, so
+       floats on children are ignored anyway. Kept the width and
+       margin so the 8-per-row grid still holds. */
+    text-align: center;
+    letter-spacing: normal;
+    border: 1px solid #c8d3e0;
+    background: transparent;
+    padding: 5px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Same safety net for the inner chart container. Combined with the
+   parent's min-width above, chartcol3 is guaranteed to have a real
+   pixel width at chart-construction time, so Highcharts's initial
+   measurement is never 0. */
+.chartcolH .chartcol3 {
+    /* Only box-sizing here — the cell's outer width (.chartcolH has
+       min-width: 155px) and Highcharts's own height: 80 config now
+       drive the chart size. Removed min-width: 150px + min-height:
+       70px, which were belt-and-suspenders during the 0-px-container
+       bug fix but were causing the chart in certain cells (Systemic
+       BP via get_bp_chart_highlight_area, Temperature via
+       get_lab_chart_highlight_area) to render at a slightly different
+       vertical position than the med/lab cells whose charts also
+       apply their own internal padding. */
+    box-sizing: border-box;
+}
+
+.chartcolHbackup {
+    margin-top: 5px;
+    margin-left: 5px;
+    margin-bottom: 5px;
+    padding-right: 10px;
+    width: 12.5%;
+    float: left;
+    border-radius: 8px;
+    width: 22%;
+    margin-right: 12px;
+    letter-spacing: -0.31em;
+    background: #dfdfdf;
+    border-width: thin;
+    border-style: solid;
+    /*display: none;*/
+}
+
+.highlightedchartrow {
+    /*width: 30%;
+    margin: 10px;*/
+    border-radius: 8px;
+    width: 10%;
+    margin: 5px;
+    margin-right: 12px;
+    letter-spacing: -0.31em;
+    float: left;
+    background: #dfdfdf;
+    border-width: thin;
+    border-style: solid;
+}
+
+.vitalrow, .iorow, .medrow{
+    /* Same transparency + dimensional-stability rules as .chartrow —
+       see comment there. Explicit 1px border-width + box-sizing:
+       border-box ensures that adding .is-user-selected (which only
+       changes border-color and background) cannot shift the row's
+       outer pixel dimensions by even 1 px. Without this, the floated
+       grid reflowed on each click and cells further down the layout
+       jittered by a pixel or two — visually distracting during
+       selection. `position: relative` anchors the absolutely-
+       positioned ✓ overlay. */
+    border-radius: 8px;
+    width: 90%;
+    margin: 5px;
+    margin-left: 12px;
+    letter-spacing: -0.31em;
+    float: left;
+    background: transparent;
+    border: 1px solid #c8d3e0;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.timepane{
+    padding-right: 15px;
+    padding-left: 0px;
+    background: #c1c1c1;
+  /*  position:absolute fixed;
+    left:0px;
+    top:0px;
+    z-index: 10;*/
+}
+
+a:active {
+    background-color: yellow;
+}
+
+.less-pad{
+    padding: 10px 10px !important;
+}
+
+.even-less-pad{
+    padding: 10px 6px !important;
+}
+
+.even-less-pad-tabs{
+    padding: 8px 3px !important;
+    font-size: 10px;
+}
+
+.timerow{
+    background: #c1c1c1;
+    color: #FFFFFF;
+    width: 20%;
+    float: left;
+    margin-left: 14px;
+    margin-right: 14px;
+}
+
+.vit-timerow{
+    background: #c1c1c1;
+    color: #FFFFFF;
+    width: 90%;
+    margin-left: 14px;
+    margin-right: 14px;
+    float: left;
+}
+
+.io-timerow{
+    background: #c1c1c1;
+    color: #FFFFFF;
+    width: 80%;
+    margin-left: 40px;
+    margin-right: 14px;
+    float: left;
+}
+
+.title{
+    text-align:center;
+    background: #B0B0B0 ;
+    /*color: black;
+    font-weight:bold;*/
+    color: white;
+
+}
+
+.topchartrow {
+    width: auto;
+    letter-spacing: -0.31em;
+    background: #FFFFB2;
+    border-bottom-style:solid;
+    /*border-width:1px;*/
+    border-color: #888888;
+
+}
+
+.charttitlerow {
+    width: 100%;
+    background: #e8e8e8;
+    font-weight: bold;
+    letter-spacing: normal;
+    /*text-indent:50px;*/
+    float:left;
+    text-align: center;
+}
+
+.chartcol1, .chartcol2, .chartcol3, .chartcolfull, .chartcolTS{
+    display: inline-block;
+    vertical-align: middle;
+    border: 0 solid black;
+    padding: 0;
+    margin: 0;
+    letter-spacing: normal;
+    font-size: 12pt;
+    overflow: hidden;
+}
+
+.chartcol1 {
+    /* .chartcol1 hosts the ✓ selection badge. Kept OUT OF NORMAL FLOW
+       at all times (position: absolute) so toggling `.is-user-selected`
+       — which previously flipped .chartcol1 between inline-block (in
+       flow, reserving 65% of the row's inner width) and position:
+       absolute (out of flow, releasing that 65% back to .chartcol3) —
+       never causes .chartcol3 (the chart itself) to reflow at a
+       different width, shrinking or shifting the chart on selection.
+       When the row does not carry .is-user-selected the badge is
+       hidden with display:none by the `.is-user-selected .chartcol1`
+       rule below (which flips display back to flex on selection),
+       so the badge only paints when a selection actually exists but
+       the surrounding layout is stable in both states. */
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 18px;
+    height: 18px;
+    display: none;
+    margin: 0;
+    padding: 0;
+    z-index: 10;
+    pointer-events: none;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: visible;
+}
+
+.chartcol2 {
+    width: 25%;
+    white-space: nowrap ;
+    text-overflow: ellipsis;
+}
+
+.chartcol3 {
+    margin-top: 5px;
+    margin-left: 5px;
+    margin-bottom: 5px;
+    padding-right: 10px;
+    width: 100%;
+    /*display: show;*/
+
+}
+
+
+.chartcolfull{
+    width:100%;
+    margin-left: 10px;
+    margin-right: 10px;
+    text-align: center;
+    background: white;
+
+}
+
+.chartcolTS{
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left: 5px;
+    width: 25%;
+    /*z-index: 10px;*/
+}
+
+.n-button{
+    width: 75%;
+    text-align: left;
+    background-color: #e7e7e7;
+}
+
+/*selected button*/
+.v-button{
+    width: 75%;
+    text-align: left;
+    color: black;
+    background-color: #F5F5DC;
+}
+
+.m-button{
+    width: 20%;
+    text-align: left;
+    color: black;
+    background-color: #e7e7e7;
+}
+
+
+.red-text{
+    color: darkred;
+    font-weight: bold;
+}
+
+/*report define the size of the note box*/
+
+.report {
+    /* Fills the notes column wrapper (which is now a hard 745 px) minus
+       the nav-tabs row (~38 px). Internal scrolling keeps long notes
+       readable without pushing the wrapper taller. */
+    margin-left: 15px;
+    margin-right: 5px;
+    font-family: Verdana;
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: calc(100% - 38px);
+    max-height: 707px;
+}
+
+.procedures {
+    margin-left: 12px;
+    margin-right: 0px;
+    font-family: Verdana;
+    overflow: auto;
+}
+
+.note{
+    margin: 5px;
+}
+
+.task {
+    font-size: 14px;
+}
+
+textarea {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.navbar-text {
+    font-weight: bold;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow:hidden;
+}
+
+.navbar-nav > li > a {
+    font-weight: bold;
+    line-height: 50px;
+}
+
+.navbar-nav > li {
+    font-weight: bold;
+    line-height: 50px;
+}
+
+
+
+.highlight_area{
+    background-color: #020202
+
+}
+
+
+.lab_groupings{
+    margin-left: 5px;
+    border-right: solid;
+    /*border-width: 1px;*/
+    border-color: black;
+    color:black;
+}
+
+.expander{
+    float: right;
+    margin-right:10px;
+    font-size: 8pt;
+
+}
+
+.m_h{
+    max-height:500px;
+    overflow:auto;
+    width: 85%;
+}
+
+.units{
+
+}
+
+.shower{
+    display: none;
+}
+
+/* Highlight-panel cells never show a checkbox — per Luca's spec the
+   only place a checkbox appears is next to the item in its native
+   section of the All-patient-data panel. Highlight-panel cells stay
+   click-to-select via their onclick handler; the ✓ badge for a
+   selected item lives on the main-panel row's .chartcol1 (paired
+   via shared row id). Force any highlight-panel .chartcol1 to stay
+   hidden regardless of what `$('.shower').show()` OR
+   `.is-user-selected .chartcol1` tries to do. The first selector
+   below covers the un-selected case. The second (with three classes)
+   out-specifies `.is-user-selected .chartcol1` (two classes) so a
+   selected highlight-panel cell still keeps its chartcol1 hidden
+   rather than swelling to 65% width and squishing the chart. */
+.chartcolH .chartcol1,
+.chartcolH.chartrow.is-user-selected .chartcol1 {
+    display: none !important;
+}
+
+/* ----------------------------------------------------------------
+   AI-highlighted row state. Applied by highlight() in emr_3.js for
+   every item that the prototype shows in the Highlighted-data panel —
+   whether truly judges-relevant or a planted commission. Painted in
+   BOTH the highlight panel and the All-patient-data panel so the
+   participant can see, while scanning the main panel, which rows the
+   AI has surfaced. Defined BEFORE .is-user-selected so the
+   selection-state rule (also `!important`) wins on source-order tie
+   when both classes are present on a row the user has picked.
+   ---------------------------------------------------------------- */
+.lemr-ai-highlighted {
+    /* Identical to the inline background-color on #highlight_area
+       (see index_3.html), so the AI-highlighted rows in the
+       All-patient-data panel pick up exactly the same yellow tint
+       the participant sees in the Highlighted-data panel. */
+    background-color: #ffffc1 !important;
+}
+
+/* ----------------------------------------------------------------
+   User-selected row state. Applied by activate() in emr_3.js when
+   the participant clicks a row to mark it relevant; removed on the
+   next click. Visually:
+     - Pale-green fill (#DCFCE7) with a darker green border, overriding
+       the inline yellow that highlight() set at page-load for AI-
+       suggested items (so the yellow → green transition signals
+       "AI suggested + I confirmed").
+     - The .chartcol1 inside the row becomes a small filled-green
+       circle holding a white check, replacing the pale grey
+       unchecked-checkbox glyph that's shown during the selection
+       phase.
+   Removing the class on un-select restores whatever paint was below
+   it: yellow for AI-suggested items (since highlight()'s inline
+   background-color survives), or the row's default grey otherwise.
+   ---------------------------------------------------------------- */
+.is-user-selected {
+    background-color: #DCFCE7 !important;
+    border-color: #047857 !important;
+    /* Preserve the 1px border-width explicitly so that neither the
+       colour change nor a future style tweak can promote the border
+       to a wider value that would shift the floated grid layout. */
+    border-width: 1px !important;
+    border-style: solid !important;
+    box-sizing: border-box !important;
+}
+/* The ✓ badge lives in .chartcol1, which during selection holds the
+   glyphicon-check element activate() inserts. To prevent the badge from
+   shifting the chart inside .chartcol3, take .chartcol1 out of normal
+   flow and anchor it to the top-left corner of the row. The parent
+   rows (.chartrow, .vitalrow, .iorow, .medrow, .chartcolH) all have
+   position: relative for this. */
+.is-user-selected .chartcol1 {
+    position: absolute !important;
+    top: 4px;
+    left: 4px;
+    width: 18px !important;
+    height: 18px;
+    margin: 0;
+    padding: 0;
+    background: #047857;
+    color: #FFFFFF;
+    border-radius: 50%;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    z-index: 10;
+    box-shadow: 0 0 0 2px #FFFFFF;  /* ring so the badge reads on any cell colour */
+    pointer-events: none;            /* clicks pass through to the row */
+}
+.is-user-selected .chartcol1 .glyphicon {
+    color: #FFFFFF;
+    font-size: 10px;
+    top: 0;
+    line-height: 1;
+}
+.is-user-selected .chartcol1 .glyphicon-check::before {
+    /* Render a crisp tick at the small badge size, in case the
+       default glyph stroke is too thick. */
+    content: "\2713";
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 12px;
+    line-height: 1;
+}
+
+#loading_new_patient {
+    /* Fixed-position overlay so it always covers the full visible
+       viewport — including the parts of the screen below the fold in
+       browser fullscreen on a taller display. The previous fixed
+       1920 x 1100 absolute-positioned box left a strip of un-greyed
+       page along the bottom in F11/fullscreen mode. */
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 100;
+    background-color: rgba(192, 192, 192, 0.5);
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.highcharts-container{width:100% !important; height:100% !important;}
+
+.center-div{
+    /* New-patient intro card. Fixed-positioned overlay so it stays
+       centered in the visible viewport regardless of scroll / FS height.
+       Visually a white card with the prototype's proto-blue (#C1E1EE)
+       3px left accent, in keeping with the trust-pre and home-screen
+       styling. The previous flat-light-blue card with default browser
+       <button> elements has been replaced with the .lemr-btn system.
+
+       Centering uses `top: 50% / left: 50% / transform: translate(-50%, -50%)`
+       rather than the four-anchor `top: 0; right: 0; bottom: 0; left: 0;
+       margin: auto` pattern. The four-anchor pattern stretches the
+       element to the entire space between anchors when one of the
+       cross-axis sizes is `auto`, which made the card render full
+       viewport height. translate-centering leaves both width and height
+       fully content-determined. */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 420px;
+    max-width: calc(100vw - 32px);   /* keep a margin on small viewports */
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+    background: #FFFFFF;
+    color: #1F2937;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    text-align: left;
+    border: 1px solid #DCE6F0;
+    border-left: 3px solid #C1E1EE;
+    border-radius: 12px;
+    box-shadow: 0 4px 18px rgba(15,23,42,0.08);
+    z-index: 101;       /* above the grey #loading_new_patient overlay */
+    padding: 18px 22px;
+    font-size: 13px;
+}
+.center-div .eyebrow {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+    color: #5C6B7A; text-transform: uppercase; margin: 0 0 4px;
+}
+.center-div h2 {
+    font-size: 17px; font-weight: 500; margin: 0 0 6px;
+    letter-spacing: -0.01em; color: #1F2937; line-height: 1.25;
+}
+.center-div .meta {
+    font-size: 11px; color: #5C6B7A; margin: 0 0 12px;
+    font-variant-numeric: tabular-nums; line-height: 1.4;
+}
+.center-div .lead {
+    font-size: 13px; color: #1F2937; margin: 0 0 14px; line-height: 1.5;
+}
+.center-div .actions {
+    display: flex; gap: 8px; align-items: center;
+}
+
+/* ----------------------------------------------------------------
+   .lemr-btn — the primary / secondary button system used by the new
+   intro overlay AND the in-task action buttons rendered from emr_3.js
+   / phase6_flow.js. Primary is Pitt Royal Blue; secondary is a solid
+   slate grey (matching --text-muted in the trust templates). Neither
+   uses light blue or transparent fills, per the v2 mockup brief.
+   ---------------------------------------------------------------- */
+.lemr-btn {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 13px; font-weight: 500; line-height: 1.2;
+    padding: 8px 14px; border-radius: 8px;
+    border: 1px solid transparent;
+    cursor: pointer; transition: all 0.15s ease;
+}
+.lemr-btn.primary {
+    background: #003594; color: #FFFFFF; border-color: #003594;
+}
+.lemr-btn.primary:hover:not([disabled]) {
+    background: #002A75; border-color: #002A75;
+    box-shadow: 0 4px 16px rgba(0,53,148,0.18);
+}
+.lemr-btn.primary[disabled] {
+    background: #BCC4CF; border-color: #BCC4CF; color: #FFFFFF;
+    cursor: not-allowed; box-shadow: none;
+}
+.lemr-btn.secondary {
+    background: #5C6B7A; color: #FFFFFF; border-color: #5C6B7A;
+}
+.lemr-btn.secondary:hover:not([disabled]) {
+    background: #404B58; border-color: #404B58;
+}
+.lemr-btn.secondary[disabled] {
+    background: #BCC4CF; border-color: #BCC4CF; cursor: not-allowed;
+}
+
+/* ----------------------------------------------------------------
+   Task-box content classes — used by the static initial task content
+   in index_3.html, by create_rounding_report_screen / create_selection_screen
+   in emr_3.js, and by phase6_flow.js's commission / omission rationale
+   renderers. Designed to sit on top of the existing #c1e1ee task panel
+   without breaking the 340 px panel height.
+   ---------------------------------------------------------------- */
+.task-step-tag {
+    display: inline-block;
+    background: #FFFFFF; color: #003594;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 999px;
+    margin: 0 0 8px;
+    border: 1px solid #8FC8DA;
+    font-family: 'Inter', sans-serif;
+}
+.task-lead {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px; font-weight: 500; color: #1F2937;
+    margin: 0 0 8px; line-height: 1.45;
+}
+.task-body {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px; color: #1F2937; margin: 0 0 12px;
+    line-height: 1.45;
+}
+.task-divider {
+    height: 1px; background: rgba(0,53,148,0.18); margin: 10px 0;
+    border: none;
+}
+.task-action-row {
+    display: flex; justify-content: flex-end; gap: 8px;
+}
+.task-opt-grid {
+    display: grid; gap: 5px; margin: 0 0 10px;
+}
+.task-opt {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 10px;
+    background: #FFFFFF;
+    border: 1px solid #8FC8DA;
+    border-radius: 8px;
+    font-size: 12px; line-height: 1.3;
+    font-family: 'Inter', sans-serif; color: #1F2937;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.task-opt:hover { border-color: #003594; }
+.task-opt input[type=radio] {
+    accent-color: #003594; margin: 0; flex-shrink: 0;
+    width: 16px; height: 16px;
+}
+.task-opt input[type=text] {
+    flex: 1; font-family: inherit; font-size: 12px;
+    padding: 3px 6px; border: 1px solid #8FC8DA; border-radius: 5px;
+    background: #F4F8FC; color: #1F2937;
+}
+.task-opt input[type=text]:focus {
+    outline: none; border-color: #003594;
+    box-shadow: 0 0 0 2px rgba(0,53,148,0.15);
+}
+.task-textarea {
+    width: 100%; min-height: 90px; max-height: 140px;
+    font-family: 'Inter', sans-serif; font-size: 12px;
+    padding: 8px 10px; border: 1px solid #8FC8DA; border-radius: 8px;
+    background: #FFFFFF; color: #1F2937;
+    resize: vertical; box-sizing: border-box;
+    margin: 0 0 4px;
+}
+.task-textarea:focus {
+    outline: none; border-color: #003594;
+    box-shadow: 0 0 0 2px rgba(0,53,148,0.15);
+}
+
+p.thick {
+    font-weight: 900 !important;
+}
+
+img.center {
+    display: block;
+    margin: 0 auto;
+}
+
+
+ul.nav.navbar-nav {
+    height: 50px;
+}
+
+rect.highcharts-navigator-mask-inside {
+    fill: rgba(193, 225, 238, 0.4);
+}
+
+ul {
+    padding-inline-start: 0px;
+}

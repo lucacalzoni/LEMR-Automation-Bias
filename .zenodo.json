@@ -1,0 +1,52 @@
+{
+  "title": "LEMR-Automation-Bias: Learning EMR fork for the automation-bias study",
+  "description": "<p>Django prototype of a Learning Electronic Medical Record (LEMR) system, extended with study-specific instrumentation for a within-participant automation-bias evaluation with ICU physicians. Fork of <a href=\"https://github.com/ajk77/LEMRinterface\">ajk77/LEMRinterface</a> (Andrew J. King, 2018), retaining GPL-3.0. Companion software to Calzoni (2026) PhD dissertation, University of Pittsburgh. See <a href=\"https://github.com/lucacalzoni/LEMR-Automation-Bias/blob/main/CHANGES_FROM_KING.md\">CHANGES_FROM_KING.md</a> for the full inventory of study-specific modifications.</p>",
+  "creators": [
+    {
+      "name": "Calzoni, Luca",
+      "affiliation": "University of Pittsburgh"
+    }
+  ],
+  "contributors": [
+    {
+      "name": "King, Andrew J.",
+      "affiliation": "University of Pittsburgh",
+      "type": "Other"
+    }
+  ],
+  "keywords": [
+    "electronic medical record",
+    "EMR",
+    "EHR",
+    "clinical decision support",
+    "automation bias",
+    "human factors",
+    "human-computer interaction",
+    "learning EMR",
+    "LEMR",
+    "intensive care",
+    "ICU",
+    "trust in automation",
+    "machine learning",
+    "django"
+  ],
+  "license": "GPL-3.0-or-later",
+  "upload_type": "software",
+  "access_right": "open",
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/ajk77/LEMRinterface",
+      "relation": "isDerivedFrom",
+      "resource_type": "software",
+      "scheme": "url"
+    },
+    {
+      "identifier": "https://github.com/lucacalzoni/LEMR-Automation-Bias",
+      "relation": "isSupplementTo",
+      "resource_type": "software",
+      "scheme": "url"
+    }
+  ],
+  "communities": [],
+  "notes": "The pickled patient-case data used in the original evaluation study cannot be redistributed and is not included in this release. The upstream King repository (ajk77/LEMRinterface) ships three synthetic demo cases under resources/demo_study/ that can be used to exercise the interface."
+}

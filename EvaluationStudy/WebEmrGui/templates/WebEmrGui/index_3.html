@@ -1,0 +1,791 @@
+{% load custom_tags %}
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="generator" content="HTML Tidy for Windows (vers 14 February 2006), see www.w3.org">
+    <title>LEMR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap <p>Option-vertical icon: <span class="glyphicon glyphicon-option-vertical"></span></p>-->
+
+    <link href="/static/css/bootstrap.css" rel="stylesheet">
+    <link href="/static/custom_css/bs_3.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <script src="http://code.highcharts.com/stock/highstock.js"></script>
+    <script src="http://code.highcharts.com/stock/modules/exporting.js"></script>
+    <![endif]-->
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <!-- Scrips for when you have an internet connetion
+    <script src="https://code.jquery.com/jquery.js" type="text/javascript"></script>
+    <script src="http://code.highcharts.com/stock/highstock.js"  type="text/javascript"></script>
+    Otherwise use what is below-->
+    <script src="/static/jcode/jquery.js"></script>
+    <script src="/static/jcode//highstock.js"></script>
+    <!--<script src="/static/jcode//jquery.sortable.min.js"></script>-->
+
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/emr_3.js"></script>
+    <script>
+        // Phase 6 — per-case study payload (case-specific items, user id, etc.)
+        window.PHASE6 = {{ phase6_json|safe }};
+    </script>
+    <script src="/static/js/phase6_flow.js"></script>
+    <script>
+        {% autoescape off %}
+            setDefaultTimes({{ global_time }});
+            set_ids({{demographics_dict.id}}, '{{ user_id }}');
+            console.log('Current user id is: '+'{{ user_id }}'+'.');
+        {% endautoescape %}
+    </script>
+</head>
+
+<!-- BODY -->
+
+<body> <!--screen size is 2378px x px -->
+
+<!--
+  The grey #loading_new_patient backdrop and the #directions "new patient"
+  card both live OUTSIDE #wrapper. Reason: #wrapper carries a `transform:
+  scale(...)` for viewport auto-fit, and a CSS transform on an ancestor
+  makes that ancestor (rather than the viewport) the containing block for
+  any `position: fixed` descendants. That meant the grey overlay only
+  covered the scaled-down wrapper area and the modal was anchored to
+  wrapper coordinates instead of the viewport. Keeping them as siblings
+  of #wrapper restores true viewport-fixed positioning.
+-->
+<div class="glyphicon glyphicon-refresh" id="loading_new_patient">
+</div>
+
+<!-- Popup message with instructions (moved out of #wrapper — see comment above). -->
+<div id="directions" class="center-div">
+  <p class="eyebrow">New patient</p>
+  <h2>{{ demographics_dict.age }}-year-old {{ demographics_dict.sex|full_gender }}</h2>
+  <p class="meta">{{global_time|date_line}}</p>
+  <p class="lead">Please use the available information to become familiar with this patient.</p>
+  <div class="actions">
+    <button id="directions_button" class="lemr-btn primary" type="button" onclick="remove_directions()" disabled>Start reviewing</button>
+  </div>
+</div>
+
+<div id="wrapper">
+
+  <div class="container" style="width: 1920px; margin-left: 0px; margin-right: 0px; overflow: hidden; padding-right: 0px; padding-left: 0px; padding-right: 0; padding-left: 0;">
+    <div class="row">
+      <div class="col-12 navbar-fixed-top navbar-inverse" style="width: 1920px ; heigth: 50px; margin: 0 auto; margin-left: 0px; margin-right: 0px; padding-right: 0; padding-left: 0; overflow: hidden;">
+        {{ STATIC_URL }}
+        <div class="navbar-header">
+          <!--<a class="navbar-brand" style="color:greenyellow;" href="#">LEMR<img src="/static/logos/LEMR.jpg" width="100" height="50" alt="LEMR Logo"></a>-->
+          <span href="#"><img src="/static/logos/LEMR.jpg" width="100" height="50" alt="LEMR Logo"></span>
+        </div>
+        <ul class="nav navbar-nav" style="margin-left: 0px; margin-right: 0px">
+          <p class="navbar-text" style="color:#f5f5f5;"> </p>
+          <li><a href="/WebEmrGui/" style="padding: 0px"><span class="glyphicon glyphicon-home" aria-hidden="true" style="color:grey; line-height: 50px; padding: 0px;"></span></a></li>
+          <p class="navbar-text" style="color:#f5f5f5;"> </p>
+          <p class="navbar-text" style="color:#f5f5f5;">Patient # {{ demographics_dict.id|short_id }}</p>
+          <p class="navbar-text" style="color:#f5f5f5;">{{ demographics_dict.age }} year old {{ demographics_dict.sex|full_gender }}</p>
+          <p class="navbar-text" style="color:#f5f5f5;">{{ demographics_dict.height }} cm</p>
+          <p class="navbar-text" style="color:#f5f5f5;">{{ demographics_dict.weight }} kg</p>
+          <p class="navbar-text" style="color:#f5f5f5;">BMI: {{ demographics_dict.bmi }}</p>
+          <p class="navbar-text" style="color:#f5f5f5;width:150px;"> Race: {{ demographics_dict.race }}</p>
+          <!--<p class="navbar-text" style="color:#f5f5f5;background-color:#222222;width:150px;" id="selectedP">&nbsp;<span id="selectedTime" class="glyphicon glyphicon-option-vertical" aria-hidden="true" style="color:black"></span></p>-->
+          <p class="navbar-text" style="color:#f5f5f5;width:150px;"></p>
+          <p class="navbar-text" style="color:#f5f5f5;"> Time Selector: </p>
+          <p class="navbar-text" style="color:#f5f5f5;" id="selectedTimes"></p>
+</ul>
+
+        <div class="chartcolTS" id="time_selector">
+          <script>
+            {% autoescape off %}
+            getchartTS("div[id='time_selector']", {{ global_time|safe }});
+            {% endautoescape %}
+            </script>
+          </div>
+
+        </div>
+
+
+<!-- #directions has been moved to be a sibling of #wrapper; see comment near the top of body. -->
+</div>
+</div> <!-- closes container containing navigation bar-->
+
+
+<!--EMPTY ROW FOR BETTER VISUALIZATION-->
+
+<div class="container" style="width: 1920px; margin-left: 0px; margin-right: 0px; overflow: hidden; padding-right: 0px; padding-left: 0px">
+
+  <div class="row"> <!--50px empty row-->
+    <div class="col-lg-12" style="background-color:#525252; height: 50px; margin: 0 auto; margin-left: 0px; margin-right: 0px; padding: 0px">
+    </div>
+  </div> <!--closes row-->
+</div> <!-- closes container containing empty bar-->
+
+
+<!--1ST COLUMN 1500 px WITH HIGHLIGHTS AND ALL PATIENT DATA-->
+
+<!-- opens container common to the 2 main columns-->
+<div class="container" style="width: 1920px; margin-left: 0px; margin-right: 0px; overflow: hidden; padding-right: 0px; padding-left: 0px">
+
+<!-- opens row common to the 2 main columns-->
+<div class="row">
+
+<!-- opens 1st column -->
+<div class="col-lg-9" style="margin-left: 0px; margin-right: 0px; overflow: hidden; padding-right: 0px; padding-left: 0px">
+
+<!-- opens container for area within 1st column -->
+<div class="container highlight_area">
+
+  <!--opens highlighted area bar row-->
+  <div class="row">
+  <div class="col-lg-12 navbar-inverse" style="background-color:#525252; heigth: 50px; margin: 0 auto; margin-left: 0px; margin-right: 0px; padding: 0px">
+    <ul>
+      <p style="color:#f5f5f5;" align="center">Highlighted data</p>
+    </ul>
+  </div>
+</div> <!--closes highlighted area bar row-->
+
+<div class="row"> <!--opens highlighted area panel row-->
+
+            <!-- Highlighted labs code here -->
+
+              <!-- <div class="col-lg-9 scroll-box highlight-area" id="highlight_area" style="background-color:#ffffc1"> -->
+              <div class="col-lg-12 highlight-area" id="highlight_area" style="background-color:#ffffc1; height: 340px; margin-left: 10px; margin-right: 0px; overflow-y: auto;">
+                <script>
+
+                console.log('The following labs are highlighted for this patient case:')
+                </script>
+
+                <!-- Vitals -->
+
+                  {% for lab in group_info|get_labnames:'Vitals' %}
+                    {% if lab in vital_info %}
+                      {% if lab in labs_to_highlight %}
+                        <div class="chartrow chartcolH" id="{{ lab }}" onclick="activate('{{ lab }}')">
+                          <div class="chartcol1 shower"></div>
+                            <div class="chartcol3" id="lab{{ lab }}">
+                              <script>
+                                {% autoescape off %}
+                                console.log('{{lab}}')
+                                get_chart_highlight_area("{{ lab }}", "{{ global_display_info|get_json_arr:lab }}", '{{ vital_info|get_json_arr:lab }}', '{{ display_names|get_json_arr:lab }}');
+                                //document.getElementById('highlight_area').innerHTML += 'Vitals: {{lab}} | ';
+                                {% endautoescape %}
+                              </script>
+                            </div>
+                          </div>
+                      {% endif %}
+                    {% endif %}
+                  {% endfor %}
+
+                  <!-- Ventilator -->
+
+                    {% for lab in group_info|get_labnames:'Ventilator' %}
+                      {% if lab in vital_info %}
+                        {% if lab in labs_to_highlight %}
+                          <div class="chartrow chartcolH" id="{{ lab }}" onclick="activate('{{ lab }}')">
+                            <div class="chartcol1 shower">
+                            </div>
+                              <div class="chartcol3" id="lab{{ lab }}"  >
+                                <script>
+                                  {% autoescape off %}
+                                  console.log('{{lab}}')
+                                  get_chart_highlight_area("{{ lab }}", "{{ global_display_info|get_json_arr:lab }}", '{{ vital_info|get_json_arr:lab }}', '{{ display_names|get_json_arr:lab }}');
+                                  //document.getElementById('highlight_area').innerHTML += 'Ventilator: {{lab}} | ';
+                                  {% endautoescape %}
+                                </script>
+                              </div>
+                            </div>
+                          {% endif %}
+                        {% endif %}
+                      {% endfor %}
+
+                  <!-- I/O — rendered explicitly because the IO vital is NOT in
+                       group_info['Vitals'] or ['Ventilator'], so the loops
+                       above would otherwise miss it even when highlighted.
+                       Row id matches the main-panel IO row so activate('IO')
+                       toggles .is-user-selected on BOTH — the participant can
+                       mark I/O as relevant by clicking here OR in the All-
+                       patient-data panel below. The Highcharts container id
+                       still ends in `_h` to avoid colliding with the main
+                       panel's `labIO`. -->
+                  {% if 'IO' in labs_to_highlight %}
+                    {% if 'IO' in vital_info %}
+                      <div class="chartrow chartcolH" id="IO" onclick="activate('IO')">
+                        <div class="chartcol1 shower"></div>
+                        <div class="chartcol3" id="labIO_h">
+                          <script>
+                            {% autoescape off %}
+                            get_io_chart_highlight_area("labIO_h", "{{ vital_info|get_json_arr:'IO' }}", "I/O");
+                            {% endautoescape %}
+                          </script>
+                        </div>
+                      </div>
+                    {% endif %}
+                  {% endif %}
+
+                    <!-- Medications [WHERE IS FILE SPECIFYING IF HIGHLIGHTED?]
+                         NOTE: med_info has INTEGER keys; labs_to_highlight has STRING ids
+                         (from catalog_display_dic[short_name] reading a text file). Use
+                         stringformat:"s" to coerce before comparing, otherwise IVPB meds
+                         (and every other med) silently fail to render here. -->
+
+                    <!-- Highlight panel med rows. Row id matches the main-
+                         panel med row so activate('{{ med }}') toggles
+                         .is-user-selected on BOTH — the participant can mark
+                         a med as relevant by clicking here OR in the All-
+                         patient-data panel below. Title shown is the SAME
+                         ordered_as label the main panel uses (display_med_names),
+                         so the participant sees identical med names on both
+                         sides — no cross-lookup between catalog and ordered_as.
+                         chartTitleHtml truncates long labels with an ellipsis
+                         and puts the full string in a `title=` attribute for
+                         a hover tooltip.
+                         Iterates `highlight_panel_meds` instead of the
+                         full med_info dict so alias duplicates and rows
+                         with no data series do not render as empty grey
+                         cells (see views.py for how the list is built).
+                         Chart container id still ends in `_h` so it doesn't
+                         collide with the main panel's `med{{med}}`. -->
+                    {% for med in highlight_panel_meds %}
+                      <div class="chartrow chartcolH" id="{{ med }}" onclick="activate('{{ med }}')">
+                          <div class="chartcol1 shower"></div>
+                          <div class="chartcol3" id="med{{ med }}_h">
+                            <script>
+                            {% autoescape off %}
+                            /* Use display_med_names (ordered_as) so the highlight-panel
+                               chart title matches the main panel: Lasix vs furosemide,
+                               NS 1000 mL vs Sodium Chloride 0.9%, etc. chartTitleHtml
+                               truncates long labels with an ellipsis and exposes the
+                               full string in a title= tooltip. */
+                            get_med_chart_highlight_area("med{{ med }}_h", "{{ med_info|get_json_arr:med  }}", "{{ display_med_names|get_json_arr:med }}");
+                            {% endautoescape %}
+                            </script>
+                          </div>
+                        </div>
+                      {% endfor %}
+
+                      <!-- Labs -->
+
+                      {% for lab in lab_info %}
+                        {% if lab in labs_to_highlight %}
+                          <div class="chartrow chartcolH" id="{{ lab }}" onclick="activate('{{ lab }}')">
+                            <div class="chartcol1 shower">
+                            </div>
+                              <div class="chartcol3" id="lab{{ lab }}">
+                                <script>
+                                  {% autoescape off %}
+                                  console.log('{{lab}}');
+                                  get_chart_highlight_area("{{ lab }}", "{{ global_display_info|get_json_arr:lab }}", '{{ lab_info|get_json_arr:lab }}', '{{ display_names|get_json_arr:lab }}');
+                                  //document.getElementById('highlight_area').innerHTML += 'Lab: {{lab}} | ';
+                                  {% endautoescape %}
+                                </script>
+                              </div>
+                            </div>
+                        {% endif %}
+                      {% endfor %}
+
+              </div>
+            </div> <!--closes highlighted area panel row-->
+</div> <!--closes container for highlighted area within 1st column-->
+
+
+                <!-- All patient data -->
+
+<div class="container" id="entire_all_patient_data_area">
+                <!-- All data - Bar with titles-->
+
+                <div class="row"> <!--opens all data bar row-->
+
+                        <div class="col-lg-12 navbar-inverse" style="background-color:#525252; heigth: 50px; margin: 0 auto; margin-left: 0px; margin-right: 0px; padding: 0px">
+                          <ul>
+                            <p style="color:#f5f5f5;" align="center">All patient data</p>
+                          </ul>
+                        </div>
+
+                      </div>
+
+
+
+                <!-- All data - Panel-->
+
+
+                        <div class="row">
+                            <div class="col-lg-12 scroll-box all-data-panel" id="all-data-panel-box">
+                              <!-- Upper timepanes removed from here, decomment to put them back
+                                <div class="timepane col-md-3" >
+                                    <div class="vit-timerow" id="time">
+                                        <div class="chartcol3" id="lab-time1">
+                                            <script>
+                                            {% autoescape off %}
+                                            getchartT("div[id='lab-time1']", {{ global_time|safe }});
+                                            {% endautoescape %}
+                                            </script>
+                                        </div>
+                                   </div>
+                                </div><div class="timepane col-md-3" >
+                                    <div class="vit-timerow" id="time">
+                                        <div class="chartcol3" id="lab-time2">
+                                            <script>
+                                            {% autoescape off %}
+                                            getchartT("div[id='lab-time2']", {{ global_time|safe }});
+                                            {% endautoescape %}
+                                            </script>
+                                        </div>
+                                   </div>
+                                </div><div class="timepane col-md-6" id="time_bar">
+                                   <div class="timerow" id="time">
+                                        <div class="chartcol3" id="lab-time3">
+                                            <script>
+                                            {% autoescape off %}
+                                            getchartT("div[id='lab-time3']", {{ global_time|safe }});
+                                            {% endautoescape %}
+                                            </script>
+                                        </div>
+                                   </div><div class="timerow" id="time">
+                                        <div class="chartcol3" id="lab-time4">
+                                            <script>
+                                            {% autoescape off %}
+                                            getchartT("div[id='lab-time4']", {{ global_time|safe }});
+                                            {% endautoescape %}
+                                            </script>
+                                        </div>
+                                   </div><div class="timerow" id="time">
+                                        <div class="chartcol3" id="lab-time5">
+                                            <script>
+                                            {% autoescape off %}
+                                            getchartT("div[id='lab-time5']", {{ global_time|safe }});
+                                            {% endautoescape %}
+                                            </script>
+                                        </div>
+                                   </div><div class="timerow" id="time">
+                                        <div class="chartcol3" id="lab-time6">
+                                            <script>
+                                            {% autoescape off %}
+                                            getchartT("div[id='lab-time6']", {{ global_time|safe }});
+                                            {% endautoescape %}
+                                            </script>
+                                        </div>
+                                   </div>
+                                </div>
+                        -->
+                        <!-- ALL LABS HERE -->
+
+                                <div class="col-lg-3 vitmedbox scroll-box no-padding" id="vitmedbox">
+
+
+                                  <script>
+                                  if (study_arm === '1'){
+                                          vitmedbox.classList.add("increase_height");
+                                          console.log('Study arm is: 1. Vitmedbox height increased.');
+                                  }
+                                  </script>
+
+
+
+                                    <div class="col-lg-12 half-vitmedbox scroll-box no-padding" id="vit_tracking">
+                                        <div class="lab-group col-lg-12" id="Vitals">
+                                                <div class="charttitlerow"  onclick="remove_vertical_point(true)">
+                                                    Vitals
+                                              </div>
+
+                                            {% for lab in group_info|get_labnames:'Vitals' %}
+                                                {% if lab in vital_info %}
+                                               <div class="vitalrow" id="{{ lab }}" onclick="activate('{{ lab }}')">
+                                                   <div class="chartcol1 shower"></div>
+                                                    <div class="chartcol3" id="lab{{ lab }}" >
+                                                        <script>
+                                                        {% autoescape off %}
+                                                        get_chart("{{ lab }}", "{{ global_display_info|get_json_arr:lab }}", '{{ vital_info|get_json_arr:lab  }}', "{{ display_names|get_json_arr:lab }}");
+                                                        showgroup("Vitals");
+                                                        {% endautoescape %}
+                                                        </script>
+                                                    </div>
+                                               </div>
+                                                {% endif %}
+                                              {% endfor %}
+                                        </div>
+
+
+                                        <div class="lab-group col-lg-12" id="Ventilator">
+                                            <div class="charttitlerow"  onclick="remove_vertical_point(true)">
+                                                    Ventilator
+                                              </div>
+                                            {% for lab in group_info|get_labnames:'Ventilator' %}
+                                                {% if lab in vital_info %}
+                                               <div class="vitalrow" id="{{ lab }}" onclick="activate('{{ lab }}')">
+                                                   <div class="chartcol1 shower"></div>
+                                                    <div class="chartcol3" id="lab{{ lab }}" >
+                                                        <script>
+                                                        {% autoescape off %}
+                                                        get_chart("{{ lab }}", "{{ global_display_info|get_json_arr:lab }}", '{{ vital_info|get_json_arr:lab  }}', "{{ display_names|get_json_arr:lab }}");
+                                                        showgroup("Ventilator");
+                                                        {% endautoescape %}
+                                                        </script>
+                                                    </div>
+                                               </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 micro-vitmedbox scroll-box t-border no-padding" id="io_tracking">
+                                        <div class="lab-group col-lg-12" id="IO_group">
+                                                <div class="charttitlerow"  onclick="remove_vertical_point(true)">
+                                                    I/O
+                                              </div>
+                                               <div class="iorow" id="IO" onclick="activate('IO')">
+                                                   <div class="chartcol1 shower" ></div>
+                                                    <div class="chartcol3" id="labIO" >
+                                                        <script>
+                                                        {% autoescape off %}
+                                                        get_io_chart("IO", "{{ vital_info|get_json_arr:'IO' }}", "I/O");
+                                                        showgroup("IO");
+                                                        showgroup("IO_group");
+                                                        {% endautoescape %}
+                                                        </script>
+                                                    </div>
+                                               </div>
+                                        </div>
+                                    </div>
+
+
+                                </div><div class="col-lg-2 vitmedbox scroll-box no-padding" id="medbox">
+
+                                    <div class="col-lg-12 medbox scroll-box no-padding" id="med_tracking">
+                                        {% for route in med_routes %}
+                                        <div class="lab-group col-md-12" id="{{route}}">
+                                                <div class="charttitlerow"  onclick="remove_vertical_point(true)">
+                                                    {{ route}}
+                                              </div>
+
+                                            {% for med in routes_mapping|get_meds:route %}
+                                                {% if med in med_info %}
+                                                <div class="medrow" id="{{ med }}" onclick="activate('{{ med }}')">
+                                                   <div class="chartcol1 shower" ></div>
+                                                    <div class="chartcol3" id="med{{ med }}" >
+                                                        <script>
+                                                            {% autoescape off %}
+                                                                get_med_chart("{{ med }}", "{{ med_info|get_json_arr:med  }}", "{{ display_med_names|get_json_arr:med }}");
+                                                                showgroup("{{ route }}");
+                                                            {% endautoescape %}
+                                                        </script>
+                                                    </div>
+                                               </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                           {% endfor %}
+                                    </div>
+
+
+                                </div>
+
+                                <div class="col-lg-7 labbox scroll-box" id="lab_tracking">
+                                  <!-- removed id="labbox" above -->
+                                       {% for group_name in group_order %}
+                                    <div class="lab-group col-lg-12" id="{{group_name}}">
+                                            <div class="charttitlerow"  onclick="remove_vertical_point(true)">
+                                                {{  group_name}}
+                                            </div>
+
+                                        {% for lab in group_info|get_labnames:group_name %}
+                                            {% if lab in lab_info %}
+                                           <div class="chartrow" id="{{ lab }}" onclick="activate('{{ lab }}')">
+                                           <div class="chartcol1 shower"> </div>
+                                               <div class="chartcol3" id="lab{{ lab }}"  >
+                                                   <script>
+                                                    {% autoescape off %}
+                                                    get_chart("{{ lab }}", "{{ global_display_info|get_json_arr:lab }}", '{{ lab_info|get_json_arr:lab }}', '{{ display_names|get_json_arr:lab }}');
+                                                    showgroup("{{ group_name }}");
+                                                    {% endautoescape %}
+                                                    </script>
+                                                </div>
+                                           </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                       {% endfor %}
+                                    </div>
+
+                        <!-- Lower timepanes removed from here, decomment to put them back
+                            <div class="timepane col-md-3" >
+                                    <div class="vit-timerow" id="time">
+                                        <div class="chartcol3" id="lab-time11">
+                                            <script>
+                                            {% autoescape off %}
+                                            getchartT("div[id='lab-time11']", {{ global_time|safe }});
+                                            {% endautoescape %}
+                                            </script>
+                                        </div>
+                                   </div>
+                                </div><div class="timepane col-md-3" >
+                                    <div class="vit-timerow" id="time">
+                                        <div class="chartcol3" id="lab-time12">
+                                            <script>
+                                            {% autoescape off %}
+                                            getchartT("div[id='lab-time12']", {{ global_time|safe }});
+                                            {% endautoescape %}
+                                            </script>
+                                        </div>
+                                   </div>
+                                </div><div class="timepane col-md-6" id="time_bar">
+                                   <div class="timerow" id="time">
+                                        <div class="chartcol3" id="lab-time13">
+                                            <script>
+                                            {% autoescape off %}
+                                            getchartT("div[id='lab-time13']", {{ global_time|safe }});
+                                            {% endautoescape %}
+                                            </script>
+                                        </div>
+                                   </div><div class="timerow" id="time">
+                                        <div class="chartcol3" id="lab-time14">
+                                            <script>
+                                            {% autoescape off %}
+                                            getchartT("div[id='lab-time14']", {{ global_time|safe }});
+                                            {% endautoescape %}
+                                            </script>
+                                        </div>
+                                   </div><div class="timerow" id="time">
+                                        <div class="chartcol3" id="lab-time15">
+                                            <script>
+                                            {% autoescape off %}
+                                            getchartT("div[id='lab-time15']", {{ global_time|safe }});
+                                            {% endautoescape %}
+                                            </script>
+                                        </div>
+                                   </div><div class="timerow" id="time">
+                                        <div class="chartcol3" id="lab-time16">
+                                            <script>
+                                            {% autoescape off %}
+                                            getchartT("div[id='lab-time16']", {{ global_time|safe }});
+                                            {% endautoescape %}
+                                            </script>
+                                        </div>
+                                   </div>
+                                </div>
+                        -->
+                            </div>
+                          </div> <!--closes all data panel row-->
+</div> <!--closes all data panel container-->
+
+
+                        <!-- Loading highlights -->
+
+                            <script>
+                                /* Expose the AI-highlighted item list to JS so updateExtremes()
+                                   can keep those rows visible in the main panel even when their
+                                   data falls outside the current time-selector window (e.g.
+                                   Phosphate / Ca / HCT that were measured before the default
+                                   window opens). Each entry is a lab code, vital code, or
+                                   integer med_id — coerce to string in the JS check. */
+                                window.labs_to_highlight = [
+                                    {% for lab in labs_to_highlight %}"{{ lab|escapejs }}",{% endfor %}
+                                ];
+                                {% for lab in labs_to_highlight %}
+                                   highlight('{{ lab }}');
+                                {% endfor %}
+
+                                  set_only_show_highlights({{ only_show_highlights }});
+                                  set_arm('{{ arm }}');
+
+                                  console.log('Study arm is: '+'{{ arm }}'+'.');
+
+                                  console.log('show_highlights is: '+'{{ show_highlights }}'+'.');
+                                  console.log('only_show_highlights is: '+'{{ only_show_highlights }}'+'.');
+                                  show_loading();
+                                  if ('{{ show_highlights }}' === '0') {
+                                    console.log('show_highlights is: 0. Hiding the Highlight Area...');
+                                    hide_highlight_area();
+                                    console.log('Highlight Area hidden and All Patient Data panel resized.');
+                                    } else {
+                                      console.log('show_highlights is: 1. Highlight Area shown.');
+                                      
+
+                                    }
+                            </script>
+
+                        <!-- DISPLAYING HIGHLIGHTED LABS IN THE HIGHLIGHT AREA AS WELL
+
+                        <script>
+                            console.log("The following labs need to be highlighted for this case:")
+                            document.getElementById('highlight-area').innerHTML += 'The following labs need to be highlighted for this case:<br>';
+                            {% for lab in labs_to_highlight %}
+                               console.log('{{ lab }}');
+                               document.getElementById('highlight-area').innerHTML += '{{ lab }} ';
+                               //display_in_highlight_area('{{ lab }}');
+                            {% endfor %}
+                            console.log("I will build a function that modifies the lab ids and displays the labs in the Highlight area.")
+                        </script>
+                        -->
+
+</div> <!--closes 1st column div-->
+
+
+<!--2ND COLUMN 420 px WITH TASKS AND NOTES-->
+<!--opens 2ND COLUMN-->
+
+<div class="col-lg-3" style="margin-left: 0px; margin-right: 0px; overflow: hidden; padding-right: 0px; padding-left: 0px">
+
+<!--BOX COMMON TO TASKS AND NOTES-->
+<div class="container" id="task_area" style="margin-left: 0px; margin-right: 0px; overflow-y: scroll; overflow-x: hidden; padding-right: 0px; padding-left: 0px">
+
+<!--TASK TITLE BAR-->
+
+<div class="row"> <!--opens task bar row-->
+<div class="col-lg-12 navbar-inverse" style="background-color:#525252; width: 505px">
+  <ul>
+    <p style="color: #f5f5f5" align="center">Tasks</p>
+  </ul>
+</div>
+</div> <!--closes task bar row-->
+
+
+
+<!--TASK BOX-->
+
+<div class="row"> <!--opens task row-->
+
+<div class="col-lg-12 " style="height: 340px; width: 505px; background: #c1e1ee; padding: 20px 26px; overflow-y: auto;">
+    <div id="task" class="note task" style="background: transparent; margin: 0;">
+      <span class="task-step-tag">Step 1 · Review</span>
+      <p class="task-lead">Become familiar with this patient.</p>
+      <p class="task-body">Use the data and notes panels. When you're ready to present the patient as if you were on morning rounds, continue.</p>
+      <hr class="task-divider">
+      <div class="task-action-row">
+        <input id='next_screen_button' type="button" value="Continue" class="lemr-btn primary"
+               onclick="create_rounding_report_screen('/WebEmrGui/{{ next_patient }}/{{ user_id }}/')">
+      </div>
+    </div>
+    </div>
+</div>
+</div> <!--closes task row-->
+
+
+<!--NOTES TITLE BAR-->
+
+
+
+  <!-- Tasks and Notes - Common box
+
+-->
+
+  <!-- Notes -->
+
+
+<!-- Notes - Bar with titles-->
+
+
+<div class="row"> <!--opens notes bar row-->
+        <div class="col-lg-12 navbar-inverse" style="background-color: #525252; width: 505px">
+          <ul>
+            <p style="color:#f5f5f5;" align="center">Notes</p>
+          </ul>
+        </div>
+      </div> <!--closes notes bar row-->
+
+
+
+  <div class="row"> <!--opens notes box row-->
+
+          <!-- Fixed height matches the All-patient-data panel's 745 px so
+               the notes column ends on the same y as the lab panel below
+               it. `overflow: hidden` prevents the inner .report from
+               pushing the wrapper taller; that inner scroll is what
+               handles long note content. -->
+          <div class="col-lg-12 scroll-box" style="width: 505px; height: 745px; overflow: hidden;">
+              <ul class="nav nav-tabs nav-tabs-justified">
+              <li class="nav-track" id="handp">
+                  <a href="#handp-reports" data-toggle="tab"  onclick="remove_vertical_point(true);" class="even-less-pad-tabs">Cons. <span class="badge">{{ HP_note|length }}</span></a>
+              </li><li class="active nav-track" id="progressnote">
+                  <a href="#progress-notes" data-toggle="tab" onclick="remove_vertical_point(true);" class="even-less-pad-tabs">Prog. <span class="badge">{{ PGN_note|length }}</span></a>
+              </li><li class="nav-track" id="op_notes">
+                  <a href="#op-notes" data-toggle="tab" onclick="remove_vertical_point(true);" class="even-less-pad-tabs">OP <span class="badge">{{ OP_note|length }}</span></a>
+              </li><li class="nav-track" id="rad_reports">
+                  <a href="#rad-reports" data-toggle="tab" onclick="remove_vertical_point(true);" class="even-less-pad-tabs">RAD <span class="badge">{{  RAD_note|length }}</span></a>
+              </li><li class="nav-track" id="ekg_notes">
+                  <a href="#ekg-reports" data-toggle="tab" onclick="remove_vertical_point(true);" class="even-less-pad-tabs">EKG <span class="badge">{{  EKG_note|length }}</span></a>
+              </li><li class="nav-track" id="microreport">
+                  <a href="#micro-reports" data-toggle="tab" onclick="remove_vertical_point(true);" class="even-less-pad-tabs">Micro <span class="badge">{{ micro_report_dict|length }}</span></a>
+              </li><li class="nav-track" id="procedure">
+                  <a href="#procedures" data-toggle="tab" onclick="remove_vertical_point(true);" class="even-less-pad-tabs">Proc. <span class="badge">{{ procedures |length }}</span></a>
+              </li><li class="nav-track" id="CARD">
+                  <a href="#other-reports" data-toggle="tab" onclick="remove_vertical_point(true);" class="even-less-pad-tabs">Other <span class="badge">{{  other_note|length }}</span></a>
+              </li></ul>
+
+              <div class="contentArea tab-content">
+                  {% include "WebEmrGui/report_template.html" with report_dict=HP_note div_id="handp-reports" %}
+                  {% include "WebEmrGui/report_template.html" with report_dict=PGN_note div_id="progress-notes" %}
+                  {% include "WebEmrGui/report_template.html" with report_dict=OP_note div_id="op-notes" %}
+                  {% include "WebEmrGui/report_template.html" with report_dict=RAD_note div_id="rad-reports" %}
+                  {% include "WebEmrGui/report_template.html" with report_dict=EKG_note div_id="ekg-reports" %}
+                  {% include "WebEmrGui/micro_template.html" with report_dict=micro_report_dict div_id="micro-reports" %}
+                  {% include "WebEmrGui/procedure_template.html" with procedures_dict=procedures div_id="procedures" %}
+                  {% include "WebEmrGui/report_template.html" with report_dict=other_note div_id="other-reports" %}
+                  <!-- DS_note not included-->
+              </div>
+          </div>
+</div>   <!--closes notes box row-->
+</div> <!--closes box common to tasks and notes-->
+</div> <!--closes 2nd column div-->
+
+</div> <!-- Closes row containing the two main columns -->
+
+</div> <!-- Closes wrapper -->
+
+<script>
+/* Viewport auto-fit. See `html, body, #wrapper` rules in bs_3.css.
+ *
+ * The prototype was designed for a 1920 × 1100 canvas. On smaller
+ * viewports (laptops, Macs in particular) it used to overflow and
+ * force scrolling. We compute a uniform scale = min(viewW / 1920,
+ * viewH / 1100) and apply it to #wrapper via `transform: scale()`.
+ * Re-runs on every window resize so the prototype always fits the
+ * current browser size; re-runs once shortly after load so any
+ * late-arriving chart heights are accounted for.
+ *
+ * Coordinate inputs (mouse clicks, keyboard) keep working correctly
+ * because CSS transforms preserve event-target mapping. */
+(function () {
+    var DESIGN_W = 1920;
+    var DESIGN_H_FALLBACK = 1100;   // used only if measurement fails
+    function fit() {
+        var wrapper = document.getElementById('wrapper');
+        if (!wrapper) return;
+        var W = document.documentElement.clientWidth  || window.innerWidth;
+        var H = document.documentElement.clientHeight || window.innerHeight;
+        // The prototype's actual rendered height varies by case (number of
+        // chart rows in the all-data panel, notes column height, etc.) and
+        // can exceed the original 1100 px design target. Using a hardcoded
+        // DESIGN_H would let the bottom of the page render below the
+        // viewport with no way to scroll there (body has overflow: hidden
+        // for the auto-fit to work). offsetHeight returns the layout
+        // height of #wrapper, which is unaffected by CSS transforms — so
+        // we can measure even while a scale() is applied from a previous
+        // tick.
+        var contentH = wrapper.offsetHeight || DESIGN_H_FALLBACK;
+        var scale = Math.min(W / DESIGN_W, H / contentH);
+        if (scale > 1) scale = 1;  // never up-scale past native; would blur charts
+        wrapper.style.transform = 'scale(' + scale + ')';
+    }
+    window.addEventListener('resize', fit);
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        fit();
+    } else {
+        window.addEventListener('load', fit);
+    }
+    // Re-fit several times after first paint to absorb late chart sizing
+    // (Highcharts renders asynchronously and can resize the wrapper).
+    setTimeout(fit, 100);
+    setTimeout(fit, 500);
+    setTimeout(fit, 1500);
+})();
+</script>
+
+</body>
+</html>

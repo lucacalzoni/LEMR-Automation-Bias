@@ -1,0 +1,6 @@
+# Pinned for Python 3.9. Django 1.11 is EOL — see docs/SETUP.md for context.
+Django==1.11.29
+Pillow>=6.2,<10        # image support in Django templates
+# stdlib is used for pickle, csv, json, threading, secrets, hashlib.
+# No numpy/pandas/sklearn dependency at runtime — those live in the
+# PatientPy pipeline that produces the .p case files (separate repo).

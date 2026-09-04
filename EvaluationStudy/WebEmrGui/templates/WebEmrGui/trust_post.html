@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>One last thing — LEMR Study</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #F4F8FC; --surface: #FFFFFF; --border: #DCE6F0; --border-soft: #ECF1F7;
+            --text: #1F2937; --text-muted: #5C6B7A;
+            --pitt-blue: #003594; --pitt-blue-50: #E8EFFB;
+            --proto-blue: #C1E1EE;
+        }
+        * { box-sizing: border-box; }
+        html, body {
+            margin: 0; padding: 0; background: var(--bg); color: var(--text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .shell { max-width: 760px; margin: 0 auto; padding: 56px 32px 80px; }
+        .header { text-align: center; margin-bottom: 32px; }
+        .header img { height: 56px; width: auto; display: block; margin: 0 auto 24px; }
+        .header h1 { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 10px; line-height: 1.25; }
+        .header p { font-size: 14px; line-height: 1.55; color: var(--text-muted); margin: 0 auto; max-width: 560px; }
+        .progress {
+            margin: 24px auto 28px; max-width: 560px;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .progress__bar { flex: 1; height: 6px; background: var(--border-soft); border-radius: 999px; overflow: hidden; }
+        .progress__fill { height: 100%; background: var(--pitt-blue); width: 0; transition: width 0.25s ease; }
+        .progress__count { font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; min-width: 70px; text-align: right; }
+        .panel {
+            background: var(--surface); border: 1px solid var(--border);
+            border-left: 3px solid var(--proto-blue);
+            border-radius: 12px; padding: 32px 32px 28px;
+            box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+        }
+        .question { font-size: 16px; font-weight: 500; margin: 0 0 22px; line-height: 1.55; }
+        .scale { display: grid; gap: 8px; margin: 0 0 24px; }
+        .scale label {
+            display: flex; align-items: center; gap: 12px;
+            padding: 11px 16px; border: 1px solid var(--border); border-radius: 10px;
+            cursor: pointer; transition: all 0.15s ease; font-size: 14px; background: var(--surface);
+        }
+        .scale label:hover { border-color: var(--pitt-blue); background: var(--pitt-blue-50); }
+        .scale label.is-selected { border-color: var(--pitt-blue); background: var(--pitt-blue-50); }
+        .scale input[type="radio"] { margin: 0; accent-color: var(--pitt-blue); width: 18px; height: 18px; flex-shrink: 0; }
+        .scale label .num { font-weight: 600; color: var(--pitt-blue); min-width: 16px; font-variant-numeric: tabular-nums; }
+        .actions { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-top: 8px; }
+        button.back, button.next {
+            font-family: inherit; font-size: 14px; font-weight: 500;
+            border: 1px solid var(--border); padding: 11px 22px; border-radius: 10px;
+            cursor: pointer; transition: all 0.15s ease; background: var(--surface); color: var(--text);
+        }
+        button.back:disabled { opacity: 0.45; cursor: not-allowed; }
+        button.next { background: var(--pitt-blue); color: #FFFFFF; border-color: var(--pitt-blue); }
+        button.next:hover:not([disabled]) { background: #002A75; box-shadow: 0 4px 16px rgba(0,53,148,0.18); }
+        button.next[disabled] { background: #BCC4CF; border-color: #BCC4CF; cursor: not-allowed; }
+        .footer { margin-top: 48px; text-align: center; font-size: 12px; color: #95A4B5; }
+        .saving { color: var(--text-muted); font-size: 12px; margin-left: 8px; }
+    </style>
+</head>
+<body>
+<div class="shell">
+    <div class="header">
+        <img src="/static/logos/Pitt.png" alt="University of Pittsburgh">
+        <h1>One last thing, {{ user_id }}</h1>
+        <p>You've completed all the cases. Please indicate how much you agree or disagree with each of the following statements about the Learning EMR. Your responses are confidential.</p>
+    </div>
+
+    <div class="progress">
+        <div class="progress__bar"><div class="progress__fill" id="progress_fill"></div></div>
+        <div class="progress__count"><span id="q_idx">1</span> of <span id="q_total"></span></div>
+    </div>
+
+    <div class="panel">
+        <p class="question" id="q_text"></p>
+        <div class="scale" id="q_scale"></div>
+        <div class="actions">
+            <button class="back" type="button" id="back_btn" disabled>Back</button>
+            <div>
+                <span class="saving" id="saving_indicator"></span>
+                <button class="next" type="button" id="next_btn" disabled>Next</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">Department of Biomedical Informatics &nbsp;·&nbsp; University of Pittsburgh</div>
+</div>
+
+<script>
+    var QUESTIONS = {{ questions_json|safe }};
+    var ANSWERS_INITIAL = {{ answers_json|safe }};
+    var ANCHORS = {{ anchors_json|safe }};
+    var WHEN = '{{ when }}';     // 'post'
+    var USER_ID = '{{ user_id }}';
+    // For post-use, the "next" destination is the end-of-study completion screen.
+    var NEXT_PATH = '/WebEmrGui/end/' + encodeURIComponent(USER_ID) + '/?completed=1';
+
+    var answers = {};
+    for (var k in ANSWERS_INITIAL) {
+        if (ANSWERS_INITIAL.hasOwnProperty(k)) answers[k] = ANSWERS_INITIAL[k];
+    }
+    var current_idx = 0;
+    var all_done = true;
+    for (var i = 0; i < QUESTIONS.length; i++) {
+        if (!answers[QUESTIONS[i].id]) { current_idx = i; all_done = false; break; }
+    }
+    if (all_done) current_idx = QUESTIONS.length - 1;
+
+    document.getElementById('q_total').textContent = String(QUESTIONS.length);
+
+    function getCsrfToken() {
+        var name = 'csrftoken=';
+        var parts = document.cookie.split(';');
+        for (var i = 0; i < parts.length; i++) {
+            var c = parts[i].replace(/^\s+/, '');
+            if (c.indexOf(name) === 0) return c.substring(name.length);
+        }
+        return '';
+    }
+
+    function renderQuestion() {
+        var q = QUESTIONS[current_idx];
+        document.getElementById('q_idx').textContent = String(current_idx + 1);
+        document.getElementById('q_text').textContent = q.text;
+        var pct = ((current_idx) / Math.max(1, QUESTIONS.length - 1)) * 100;
+        document.getElementById('progress_fill').style.width = pct.toFixed(0) + '%';
+
+        var scale = document.getElementById('q_scale');
+        scale.innerHTML = '';
+        var picked = answers[q.id] || null;
+        // See trust_pre.html for the closure note: `label` MUST be passed
+        // as an IIFE argument so each handler keeps its own reference,
+        // otherwise every click highlights only the last (5th) option.
+        for (var i = 0; i < ANCHORS.length; i++) {
+            var anchor = ANCHORS[i];
+            var label = document.createElement('label');
+            if (picked && Number(picked) === anchor.value) label.classList.add('is-selected');
+            var input = document.createElement('input');
+            input.type = 'radio';
+            input.name = 'trust_q_' + q.id;
+            input.value = String(anchor.value);
+            if (picked && Number(picked) === anchor.value) input.checked = true;
+            input.addEventListener('change', (function (qid, v, lbl) {
+                return function () {
+                    answers[qid] = v;
+                    var labels = scale.querySelectorAll('label');
+                    for (var j = 0; j < labels.length; j++) labels[j].classList.remove('is-selected');
+                    lbl.classList.add('is-selected');
+                    document.getElementById('next_btn').disabled = false;
+                };
+            })(q.id, anchor.value, label));
+            var num = document.createElement('span');
+            num.className = 'num';
+            num.textContent = String(anchor.value);
+            var txt = document.createElement('span');
+            txt.textContent = anchor.label;
+            label.appendChild(input);
+            label.appendChild(num);
+            label.appendChild(txt);
+            scale.appendChild(label);
+        }
+
+        document.getElementById('back_btn').disabled = (current_idx === 0);
+        document.getElementById('next_btn').disabled = !answers[q.id];
+        document.getElementById('next_btn').textContent =
+            (current_idx === QUESTIONS.length - 1) ? 'Finish' : 'Next';
+    }
+
+    function saveCurrent(onDone) {
+        var q = QUESTIONS[current_idx];
+        var v = answers[q.id];
+        if (!v) { if (onDone) onDone(true); return; }
+        document.getElementById('saving_indicator').textContent = 'Saving…';
+        var body =
+              'user_id='     + encodeURIComponent(USER_ID)
+            + '&when='       + encodeURIComponent(WHEN)
+            + '&question_id='+ encodeURIComponent(q.id)
+            + '&category='   + encodeURIComponent(q.category || '')
+            + '&value='      + encodeURIComponent(v);
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/WebEmrGui/save_trust/', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        var tok = getCsrfToken();
+        if (tok) xhr.setRequestHeader('X-CSRFToken', tok);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState !== 4) return;
+            var ok = xhr.status >= 200 && xhr.status < 300;
+            document.getElementById('saving_indicator').textContent = ok ? '' : 'Save failed';
+            if (!ok) {
+                console.error('[trust_post save FAILED] status=' + xhr.status +
+                              ' body=' + (xhr.responseText || '').substring(0, 240));
+            }
+            if (onDone) onDone(ok);
+        };
+        xhr.send(body);
+    }
+
+    document.getElementById('back_btn').addEventListener('click', function () {
+        if (current_idx === 0) return;
+        current_idx -= 1;
+        renderQuestion();
+    });
+    document.getElementById('next_btn').addEventListener('click', function () {
+        document.getElementById('next_btn').disabled = true;
+        saveCurrent(function (ok) {
+            if (!ok) {
+                document.getElementById('next_btn').disabled = false;
+                alert('Your response could not be saved. Please try again. If the problem persists, alert the study coordinator.');
+                return;
+            }
+            if (current_idx < QUESTIONS.length - 1) {
+                current_idx += 1;
+                renderQuestion();
+            } else {
+                window.location.href = NEXT_PATH;
+            }
+        });
+    });
+
+    renderQuestion();
+</script>
+</body>
+</html>
