@@ -23,7 +23,15 @@ import pickle
 import json
 import unicodedata
 import re  # regex
-import numpy as np
+try:
+    import numpy as np
+except ImportError:
+    # numpy is only needed by the King-era MySQL-backed data-ingest
+    # helpers in this file (load_case_date, load_mars_labs, etc.).
+    # The study runtime does NOT call any of those, so a numpy-less
+    # install can still serve the interface. If you actually need to
+    # regenerate .p case files from a MySQL source, `pip install numpy`.
+    np = None
 
 
 run_queries = True

@@ -7,7 +7,8 @@ from django import forms
 # Python 3: implicit relative imports were removed. The package-relative
 # form below works under both Py2 (legacy Django 1.11 / Bitnami stack on
 # Windows) and Py3 (any modern install).
-from .loaddata import *
+from .loaddata import update_cases  # only symbol actually used at request time; loaddata's other
+# functions are King-era MySQL data-ingest helpers (numpy/MySQL deps not needed at runtime)
 from .utils import load_med_maps, load_med_full_map, load_access_code, load_all_access_codes
 from . import results_io
 from . import trust_instrument
