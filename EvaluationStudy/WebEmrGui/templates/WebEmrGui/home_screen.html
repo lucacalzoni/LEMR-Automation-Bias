@@ -405,18 +405,10 @@
                 </a>
                 {% endif %}
             {% endfor %}
-            <div class="card card--pilots">
-                <span class="card__icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                </span>
-                <div class="card__body">
-                    <div class="card__title">Pilots</div>
-                    <div class="pilot-chips">
-                        <a class="pilot-chip card--needs-code" data-pid="Pilot_1" href="/WebEmrGui/eye_test/Pilot_1/">Pilot 1</a>
-                        <a class="pilot-chip card--needs-code" data-pid="Pilot_2" href="/WebEmrGui/eye_test/Pilot_2/">Pilot 2</a>
-                    </div>
-                </div>
-            </div>
+            {# Pilots card removed for the public demo — the two Interface
+                Demo cards above already cover the quick-look UX. To restore for a
+                real deployment, re-add the card and provision Pilot_1 / Pilot_2
+                rows in participant_info.txt. #}
         </div>
     </section>
 
