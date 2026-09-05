@@ -234,6 +234,19 @@ def _note_list(prefix, base_ms, count, kind, body):
         })
     return out
 
+# Per-point colors — matches the study's visual convention where each
+# lab point is colored based on where its value falls relative to the
+# item's normal range: green = in range, red = out of range (either
+# above high or below low). Points are stored as dicts with x/y/color
+# instead of [x, y] pairs so Highcharts renders them per-point.
+NORMAL_COLOR = '#5cb85c'   # green
+ABNORMAL_COLOR = '#d9534f' # red
+
+def point_color(v, low, high):
+    if v < low or v > high:
+        return ABNORMAL_COLOR
+    return NORMAL_COLOR
+
 def make_series(mean, std, low, high, t_admit, t_end, n_points=48):
     dt = (t_end - t_admit) / max(1, n_points - 1)
     out = []
@@ -242,7 +255,8 @@ def make_series(mean, std, low, high, t_admit, t_end, n_points=48):
         t = (t_admit + i * dt) * 1000
         v = mean + trend * i / n_points + random.gauss(0, std * 0.6)
         v = max(low * 0.5, min(high * 1.5, v))
-        out.append([int(t), round(v, 2)])
+        v = round(v, 2)
+        out.append({'x': int(t), 'y': v, 'color': point_color(v, low, high)})
     return out
 
 def _series_dict(items, t_admit, t_end, n_points):
@@ -252,7 +266,7 @@ def _series_dict(items, t_admit, t_end, n_points):
         color = GROUP_COLOR.get(group, '#2c3e50')
         s = [{'name': abbr, 'data': series, 'color': color, 'marker': {'radius': 3}}]
         r = [round(lo * 0.5, 2), round(hi * 1.6, 2)]
-        d[abbr] = json.dumps([s, [], r, [lo, hi], str(series[-1][1]), unit])
+        d[abbr] = json.dumps([s, [], r, [lo, hi], str(series[-1]['y']), unit])
     return d
 
 def build_labs_dict(t_admit, t_end):   return _series_dict(LABS, t_admit, t_end, 48)

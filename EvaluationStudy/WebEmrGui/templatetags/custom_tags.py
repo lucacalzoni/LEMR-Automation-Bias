@@ -8,19 +8,25 @@ register = template.Library()
 
 @register.filter(name='get_json_arr')
 def get_json_arr(lab_info, lab):
-    return lab_info[lab]
+    # Defensive: return an empty JSON list if the lab is missing so the
+    # template can render a placeholder chart instead of 500-ing.
+    return lab_info.get(lab, '[[],[],[0,0],[0,0],"",""]')
 
 @register.filter(name='get_fixed_name')
 def get_fixed_name(lab_names, lab):
-    return html.escape(lab_names[lab][0].rstrip())
+    v = lab_names.get(lab)
+    return html.escape(v[0].rstrip()) if v else lab
 
 @register.filter(name='get_fixed_name2')
 def get_fixed_name2(lab_names, lab):
-    return lab_names[lab][0] + ' - ' +lab_names[lab][1]
+    v = lab_names.get(lab)
+    return (v[0] + ' - ' + v[1]) if v and len(v) >= 2 else str(lab)
 
 @register.filter(name='get_labnames')
 def get_group_members(group_info, group_name):
-     return group_info[group_name]
+     # Defensive: unknown group returns an empty list so the template's
+     # {% for %} loop simply renders nothing instead of raising KeyError.
+     return group_info.get(group_name, [])
 
 @register.filter(name='shorten_name')
 def shorten_name(group_name):
@@ -58,7 +64,7 @@ def full_gender(gender_char):
 
 @register.filter(name='get_meds')
 def get_meds(route_mapping, route):
-    return route_mapping[route]
+    return route_mapping.get(route, [])
 
 @ register.filter(name='date_line')
 def date_line(global_time):

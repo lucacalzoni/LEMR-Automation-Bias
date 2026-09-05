@@ -358,11 +358,11 @@
     <div class="intro">
         <div class="intro__cell">
             <h4>What you'll do</h4>
-            <p>Review 6 patient cases and present each as you would on morning rounds.</p>
+            <p>Review patient cases and present each as you would on morning rounds.</p>
         </div>
         <div class="intro__cell">
             <h4>Estimated time</h4>
-            <p>Approximately 60 minutes total, with optional breaks between cases.</p>
+            <p>Approximately 10 minutes per case, with optional breaks between cases.</p>
         </div>
         <div class="intro__cell">
             <h4>Before you start</h4>
@@ -437,7 +437,7 @@
                     <span class="card__icon">{{ user.name|slice:"1:" }}</span>
                     <div class="card__body">
                         <div class="card__title">Participant {{ user.name|slice:"1:" }}</div>
-                        <p class="card__caption">Start session</p>
+                        <p class="card__caption">Start session · access code <strong>{{ user.access }}</strong></p>
                     </div>
                 </a>
                 {% endif %}

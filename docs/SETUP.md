@@ -60,6 +60,7 @@ dev server work out of the box.
 | `DJANGO_SECRET_KEY` | Django session/CSRF signing key. **Set this in production**, or sessions will invalidate every restart. | random per-boot value |
 | `DJANGO_ALLOWED_HOSTS` | Comma-separated list of public hostnames to whitelist behind a reverse proxy. | empty (localhost + 127.0.0.1 always allowed) |
 | `LEMR_DATA_DIR` | Optional override for where case data (`.p` files) is loaded from. | `models/evaluation_study/data/` |
+| `LEMR_ADMIN_PASSWORD` | Password that gates `/WebEmrGui/admin_report/`. Change this before any non-demo deployment. | `demo` |
 
 ## Case data
 

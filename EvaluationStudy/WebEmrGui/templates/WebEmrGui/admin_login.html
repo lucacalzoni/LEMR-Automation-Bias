@@ -60,6 +60,7 @@
         <label for="password">Password</label>
         <input type="password" id="password" name="password" autofocus>
         {% if error %}<p class="err">That password didn't match. Try again.</p>{% endif %}
+        <p style="font-size:12px; color:var(--text-muted); margin:14px 0 0; padding:10px 12px; background:var(--pitt-blue-50); border-radius:8px; line-height:1.5;"><strong style="color:var(--pitt-blue)">Public demo:</strong> the default password is <code style="background:#FFFFFF; padding:1px 6px; border-radius:4px; border:1px solid var(--border);">demo</code>. For any real deployment, override it via the <code>LEMR_ADMIN_PASSWORD</code> environment variable (see <code>docs/SETUP.md</code>).</p>
         <button type="submit">Unlock report</button>
     </form>
     <div class="footer">Department of Biomedical Informatics &nbsp;·&nbsp; University of Pittsburgh</div>

@@ -19,7 +19,12 @@ MANAGERS = ADMINS
 # URL (or via the login form on the report page).
 #
 # Phase 7 will move this to a gitignored local_settings.py for production.
-LEMR_ADMIN_PASSWORD = 'changeme-lemr-2026'
+# LEMR_ADMIN_PASSWORD — gates the coordinator-only admin report.
+# For the public demo release the default is 'demo' so reviewers can
+# unlock the admin page without setup. **Override this in any real
+# deployment** by setting the LEMR_ADMIN_PASSWORD env var (see
+# docs/SETUP.md).
+LEMR_ADMIN_PASSWORD = os.environ.get('LEMR_ADMIN_PASSWORD', 'demo')
 
 # Phase 6 fix: switched from MySQL to SQLite.
 #

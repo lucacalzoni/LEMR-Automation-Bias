@@ -1,2 +1,4 @@
-#username,access_code,cases_completed
-Interface_demo_without_highlights,0000,0
+#username,access_code,cases_completed,status
+P01,2026-09-04,1,pending
+Interface_demo_without_highlights,2026-09-04,0,pending
+Interface_demo_with_highlights,0002,0,pending

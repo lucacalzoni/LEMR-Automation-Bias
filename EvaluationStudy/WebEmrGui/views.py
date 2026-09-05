@@ -201,7 +201,7 @@ one_less_day = False  # when true, the most recent 24 hours of patient data is r
 local_dir = (
     os.environ.get('LEMR_DATA_DIR')
     or (os.getcwd() + '/../../models/' if os.path.isdir('../../models/') else None)
-    or os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'models')
+    or (os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'models') + '/')
 )
 
 use_patient_order = False  # When true the next and previous buttons use the patient_order ordering.

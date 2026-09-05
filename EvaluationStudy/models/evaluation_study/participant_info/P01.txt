@@ -1,0 +1,8 @@
+#visitID,cuttime1,cuttime2,t1,t2,condition,show_highlights,highlights_only,incorrect_highlights
+99999991,0.0,0.0,0,0,ARF,0,0,0
+99999992,0.0,0.0,0,0,ARF,0,0,0
+99999993,0.0,0.0,0,0,AKF,0,0,0
+99999994,0.0,0.0,0,0,ARF,1,0,0
+99999995,0.0,0.0,0,0,AKF,1,0,0
+99999996,0.0,0.0,0,0,ARF,1,0,1
+99999997,0.0,0.0,0,0,ARF,1,0,1

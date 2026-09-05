@@ -27,9 +27,16 @@ local_settings.py
 # We track the starter directory structure (via .gitkeep files) and the
 # demo participant registry, but the actual .p case files, per-participant
 # JSON results, and CSV exports never go in git.
+# The runtime reads case pickles from cases_t2/<case_id>/.
+# We track the starter directory tree (.gitkeep) and the shipped
+# synthetic demo case (99999999), but never any other case data.
+EvaluationStudy/models/evaluation_study/cases_t2/*
+!EvaluationStudy/models/evaluation_study/cases_t2/.gitkeep
+!EvaluationStudy/models/evaluation_study/cases_t2/9999*/
+# The legacy 'data/' subdir isn't used by the runtime but the starter
+# tree still ships an empty .gitkeep so the directory exists.
 EvaluationStudy/models/evaluation_study/data/*
 !EvaluationStudy/models/evaluation_study/data/.gitkeep
-!EvaluationStudy/models/evaluation_study/data/demo-*/
 EvaluationStudy/models/evaluation_study/results/*
 !EvaluationStudy/models/evaluation_study/results/.gitkeep
 EvaluationStudy/models/evaluation_study/tests/*

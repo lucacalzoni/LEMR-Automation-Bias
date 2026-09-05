@@ -153,7 +153,11 @@ def update_participant_info(user_id, location):
         line_split = line.split(',')
         if line_split[0] == user_id:
             now = datetime.datetime.now()
-            out_lines.append(user_id+','+now.strftime("%Y-%m-%d")+','+str(int(line_split[2])+1)+','+line_split[3])
+            # Preserve column 1 (access code); write the completion date to
+            # column 3 (status) instead of clobbering the access code. The
+            # old code wrote 'user_id, DATE, count+1, status' which
+            # replaced the access-code column with the date on completion.
+            out_lines.append(user_id+','+line_split[1]+','+str(int(line_split[2])+1)+','+now.strftime("completed %Y-%m-%d")+'\n')
             print('[participant_info.txt file updated.]')
         else:
             out_lines.append(line)

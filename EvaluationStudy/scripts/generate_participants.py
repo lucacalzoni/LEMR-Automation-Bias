@@ -77,7 +77,7 @@ CASE_METADATA = {
     # Cuttime values are epoch seconds; t values are day indices; the
     # last string is the admission diagnosis (e.g. 'ARF', 'AKF').
     # Replace these entries with metadata for your own case data.
-    'demo-intro':  ('0.0', '0.0', '0', '0', 'ARF'),
+    '99999999':  ('0.0', '0.0', '0', '0', 'ARF'),   # synthetic demo case shipped in models/evaluation_study/data/99999999/
     'demo-case-01':('0.0', '0.0', '0', '0', 'ARF'),
     'demo-case-02':('0.0', '0.0', '0', '0', 'AKF'),
     'demo-case-03':('0.0', '0.0', '0', '0', 'ARF'),

@@ -1,2 +1,2 @@
 #visitID,cuttime1,cuttime2,t1,t2,condition,show_highlights,highlights_only,incorrect_highlights
-99999991,0.0,0.0,0,0,ARF,0,0,0
+99999991,0.0,0.0,0,0,ARF,1,0,1
