@@ -54,6 +54,16 @@ python manage.py runserver 0.0.0.0:8000
 Full install and deployment instructions are in [docs/SETUP.md](docs/SETUP.md).
 A Docker Compose recipe (no local Python needed) is in [`docker-compose.yml`](docker-compose.yml).
 
+## Screenshots
+
+| Home | Case (no highlights) | Case (with highlights) |
+|:---:|:---:|:---:|
+| ![Home](screenshots/01_home.png) | ![Baseline](screenshots/02_case_view_no_highlights.png) | ![Highlights](screenshots/03_case_view_with_highlights.png) |
+
+| Rationale prompt | Admin report |
+|:---:|:---:|
+| ![Rationale](screenshots/04_rationale_prompt.png) | ![Admin](screenshots/05_admin_report.png) |
+
 ## Documentation
 
 - [SETUP.md](docs/SETUP.md) — environment, dependencies, first-run
