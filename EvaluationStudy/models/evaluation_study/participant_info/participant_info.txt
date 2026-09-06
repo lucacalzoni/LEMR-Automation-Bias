@@ -1,4 +1,4 @@
 #username,access_code,cases_completed,status
-P01,0001,0,pending
+P01,0001,0,completed 2026-09-05
 Interface_demo_without_highlights,0000,0,pending
 Interface_demo_with_highlights,0002,0,pending
