@@ -58,7 +58,7 @@ A Docker Compose recipe (no local Python needed) is in [`docker-compose.yml`](do
 
 | Home | Case (no highlights) | Case (with highlights) |
 |:---:|:---:|:---:|
-| ![Home](screenshots/01_home.png) | ![Baseline](screenshots/02_case_view_no_highlights.png) | ![Highlights](screenshots/03_case_view_with_highlights.png) |
+| ![Home](screenshots/01_Home.png) | ![Baseline](screenshots/02_Case View No Highlights.png) | ![Highlights](screenshots/03_Case View With Highlights.png) | ![Relevant Data Selection Screen](screenshots/04_Relevant Data Selection Screen.png) | ![Commission Rationale Prompt](screenshots/05_Commission Rationale Prompt.png) | ![Omission Rationale Prompt](screenshots/06_Omission Rationale Prompt.png) | ![Admin Report](screenshots/07_Admin Report.png) |
 
 | Rationale prompt | Admin report |
 |:---:|:---:|
