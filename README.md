@@ -12,7 +12,7 @@ experiment with three highlighting-reliability conditions (no highlights, correc
 correct + planted decoys) and records timing, item selections, McKnight trust ratings,
 commission and omission errors, and per-error rationales.
 
-![LEMR home screen](screenshots/01_home.png)
+![LEMR home screen](screenshots/01_Home.png)
 
 ## Lineage and attribution
 
