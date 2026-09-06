@@ -86,8 +86,8 @@ If you use this fork in academic work, please cite:
 - King AJ. *The development and evaluation of a Learning Electronic Medical Record
   system.* PhD dissertation, University of Pittsburgh, 2018.
 
-A citable Zenodo DOI for this software release will appear here once the first tag is
-published.
+**DOI:** [10.5281/zenodo.22432160](https://doi.org/10.5281/zenodo.22432160) — cite this DOI in publications; it always resolves to the latest released version.
+
 
 ## License
 
