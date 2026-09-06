@@ -12,6 +12,8 @@ experiment with three highlighting-reliability conditions (no highlights, correc
 correct + planted decoys) and records timing, item selections, McKnight trust ratings,
 commission and omission errors, and per-error rationales.
 
+![LEMR home screen](screenshots/01_home.png)
+
 ## Lineage and attribution
 
 - **Upstream:** Andrew J. King, `LEMRinterface`, GPL-3.0, University of Pittsburgh, 2018.
