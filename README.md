@@ -1,4 +1,4 @@
-# Learning EMR — automation-bias study fork
+# Learning EMR — Automation-Bias Study Fork
 
 A Django prototype of a Learning Electronic Medical Record (LEMR) system, adapted from
 Andrew J. King's original [`LEMRinterface`](https://github.com/ajk77/LEMRinterface) and
