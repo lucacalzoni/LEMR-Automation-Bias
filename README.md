@@ -60,9 +60,13 @@ A Docker Compose recipe (no local Python needed) is in [`docker-compose.yml`](do
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | ![Home](screenshots/01_Home.png) | ![Baseline](screenshots/02_Case%20View%20No%20Highlights.png) | ![Highlights](screenshots/03_Case%20View%20With%20Highlights.png) | ![Relevant Data Selection Screen](screenshots/04_Relevant%20Data%20Selection%20Screen.png) | ![Commission Rationale Prompt](screenshots/05_Commission%20Rationale%20Prompt.png) | ![Omission Rationale Prompt](screenshots/06_Omission%20Rationale%20Prompt.png) | ![Admin Report](screenshots/07_Admin%20Report.png) |
 
-| Rationale prompt | Admin report |
-|:---:|:---:|
-| ![Rationale](screenshots/04_rationale_prompt.png) | ![Admin](screenshots/05_admin_report.png) |
+| Home | Case (no highlights) | Case (with highlights) | Relevant Data Selection Screen | Commission Rationale Prompt | Omission Rationale Prompt | Admin Report |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| ![Home](screenshots/01_Home.png) | ![Baseline](screenshots/02_Case%20View%20No%20Highlights.png) | ![Highlights](screenshots/03_Case%20View%20With%20Highlights.png) | ![Relevant Data Selection Screen](screenshots/04_Relevant%20Data%20Selection%20Screen.png) | ![Commission Rationale Prompt](screenshots/05_Commission%20Rationale%20Prompt.png) | ![Omission Rationale Prompt](screenshots/06_Omission%20Rationale%20Prompt.png) | ![Admin Report](screenshots/07_Admin%20Report.png) |
+
+| Home | Case (no highlights) | Case (with highlights) | Relevant Data Selection Screen | Commission Rationale Prompt | Omission Rationale Prompt | Admin Report |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| ![Home](screenshots/01_Home.png) | ![Baseline](screenshots/02_Case%20View%20No%20Highlights.png) | ![Highlights](screenshots/03_Case%20View%20With%20Highlights.png) | ![Relevant Data Selection Screen](screenshots/04_Relevant%20Data%20Selection%20Screen.png) | ![Commission Rationale Prompt](screenshots/05_Commission%20Rationale%20Prompt.png) | ![Omission Rationale Prompt](screenshots/06_Omission%20Rationale%20Prompt.png) | ![Admin Report](screenshots/07_Admin%20Report.png) |
 
 ## Documentation
 
