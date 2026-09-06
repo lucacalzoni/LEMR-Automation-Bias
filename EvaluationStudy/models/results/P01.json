@@ -1,0 +1,185 @@
+{
+  "user_id": "P01",
+  "started_at": "2026-09-05T19:01:49",
+  "completed_at": null,
+  "trust_pre": null,
+  "trust_post": null,
+  "cases": [
+    {
+      "case_id": "99999991",
+      "order_index": 0,
+      "is_intro": true,
+      "condition": {
+        "show_highlights": 0,
+        "highlights_only": 0,
+        "incorrect_highlights": 0
+      },
+      "items_judges_relevant": [
+        "CREAT",
+        "BUN",
+        "K",
+        "LACT",
+        "HGB"
+      ],
+      "items_displayed_highlighted": [],
+      "items_omitted_from_highlights": [
+        "CREAT",
+        "BUN",
+        "K",
+        "LACT",
+        "HGB"
+      ],
+      "items_falsely_highlighted": [],
+      "phases": {
+        "familiarize_ms": 39089,
+        "present_ms": 1575,
+        "select_ms": 4738,
+        "commission_ms": 0,
+        "omission_ms": 0
+      },
+      "selected_items": [
+        "PHV",
+        "PVCO2"
+      ],
+      "commission_rationales": [],
+      "omission_rationales": []
+    },
+    {
+      "case_id": "99999992",
+      "order_index": 1,
+      "is_intro": false,
+      "condition": {
+        "show_highlights": 0,
+        "highlights_only": 0,
+        "incorrect_highlights": 0
+      },
+      "items_judges_relevant": [
+        "NA",
+        "CO2",
+        "GLUC",
+        "WBC",
+        "ALB"
+      ],
+      "items_displayed_highlighted": [],
+      "items_omitted_from_highlights": [
+        "NA",
+        "CO2",
+        "GLUC",
+        "WBC",
+        "ALB"
+      ],
+      "items_falsely_highlighted": [],
+      "phases": {
+        "familiarize_ms": 0,
+        "present_ms": 0,
+        "select_ms": 0,
+        "commission_ms": 0,
+        "omission_ms": 0
+      },
+      "selected_items": [],
+      "commission_rationales": [],
+      "omission_rationales": []
+    }
+  ],
+  "intro_seen": true,
+  "demographics": {
+    "age": 32,
+    "gender": "male",
+    "icu_years": 5,
+    "professional_level": "attending"
+  },
+  "trust_responses": {
+    "pre": [
+      {
+        "question_id": "pre_01",
+        "category": "situational_normality_technology",
+        "value": 2
+      },
+      {
+        "question_id": "pre_02",
+        "category": "situational_normality_technology",
+        "value": 3
+      },
+      {
+        "question_id": "pre_03",
+        "category": "situational_normality_technology",
+        "value": 4
+      },
+      {
+        "question_id": "pre_04",
+        "category": "faith_in_general_technology",
+        "value": 4
+      },
+      {
+        "question_id": "pre_05",
+        "category": "faith_in_general_technology",
+        "value": 3
+      },
+      {
+        "question_id": "pre_06",
+        "category": "faith_in_general_technology",
+        "value": 2
+      },
+      {
+        "question_id": "pre_07",
+        "category": "trusting_stance_general_technology",
+        "value": 3
+      },
+      {
+        "question_id": "pre_08",
+        "category": "trusting_stance_general_technology",
+        "value": 4
+      },
+      {
+        "question_id": "pre_09",
+        "category": "trusting_stance_general_technology",
+        "value": 3
+      },
+      {
+        "question_id": "pre_10",
+        "category": "trusting_belief_reliability",
+        "value": 2
+      },
+      {
+        "question_id": "pre_11",
+        "category": "trusting_belief_reliability",
+        "value": 3
+      },
+      {
+        "question_id": "pre_12",
+        "category": "trusting_belief_reliability",
+        "value": 4
+      },
+      {
+        "question_id": "pre_13",
+        "category": "trusting_belief_functionality",
+        "value": 3
+      },
+      {
+        "question_id": "pre_14",
+        "category": "trusting_belief_functionality",
+        "value": 2
+      },
+      {
+        "question_id": "pre_15",
+        "category": "trusting_belief_functionality",
+        "value": 3
+      },
+      {
+        "question_id": "pre_16",
+        "category": "trusting_belief_helpfulness",
+        "value": 2
+      },
+      {
+        "question_id": "pre_17",
+        "category": "trusting_belief_helpfulness",
+        "value": 2
+      },
+      {
+        "question_id": "pre_18",
+        "category": "trusting_belief_helpfulness",
+        "value": 3
+      }
+    ]
+  }
+}

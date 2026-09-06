@@ -28,7 +28,7 @@
 
         </div>
 
-        <div class="tab-content col-md-12 scroll-box" id="note_scroll">
+        <div class="tab-content col-md-12 scroll-box" id="note_scroll_{{ div_id }}">
             {% for report in report_dict %}
                 {% autoescape off %}
                     <div class="tab-pane report {% if forloop.counter0 == 0 %} active {% endif %}"
@@ -38,3 +38,41 @@
         </div>
     </div>
 </div>
+
+<script>
+(function(){
+    var scope = document.getElementById('note_scroll_{{ div_id }}');
+    if (!scope || scope.dataset.tabsBound === '1') return;
+    scope.dataset.tabsBound = '1';
+    // Find the sibling dropdown-menu that contains this section's tabs
+    var menu = scope.parentNode.querySelector('.dropdown-menu');
+    if (!menu) return;
+    menu.addEventListener('click', function(ev){
+        // Walk up to find the <a data-toggle="tab" href="#..."> ancestor
+        var a = ev.target;
+        while (a && a !== menu && !(a.getAttribute && a.getAttribute('data-toggle') === 'tab')) {
+            a = a.parentNode;
+        }
+        if (!a || a === menu) return;
+        var href = a.getAttribute('href');
+        if (!href || href.charAt(0) !== '#') return;
+        var target = document.getElementById(href.slice(1));
+        if (!target) return;
+        // Hide all siblings, show target
+        var siblings = scope.querySelectorAll('.tab-pane');
+        for (var i = 0; i < siblings.length; i++) {
+            siblings[i].classList.remove('active');
+        }
+        target.classList.add('active');
+        // Update the dropdown button label to the picked entry's first button text
+        var btn = a.querySelector('button');
+        if (btn) {
+            var toggle = scope.parentNode.querySelector('.dropdown-toggle');
+            if (toggle) {
+                toggle.firstChild && (toggle.firstChild.nodeValue = btn.textContent.trim() + ' ');
+            }
+        }
+        ev.preventDefault();
+    });
+})();
+</script>
